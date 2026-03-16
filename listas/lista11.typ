@@ -74,7 +74,7 @@
 
 #secao("Lista 11", "Matrizes")
 
-#nota[Fonte: Lista 5 (Matrizes).]
+
 
 + Escreva funções que calculam as seguintes operações sobre
   matrizes quadradas $10 times 10$:

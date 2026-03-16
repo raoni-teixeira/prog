@@ -74,8 +74,6 @@
 
 #secao("Lista 14", "Recursão")
 
-#nota[Fonte: Lista 7 (Recursão).]
-
 + Considere as funções abaixo:
   ```c
   double power(double a, int n) {
