@@ -5,30 +5,41 @@
 
 #set document(title: "Aula 3 – Decisões", author: "Raoni F. S. Teixeira")
 
+#let azul     = rgb("#003366")
+#let destaque = rgb("#1a6bad")
+#let cinza    = luma(245)
+#let vermelho = rgb("#b04020")
+#let verde    = rgb("#1a6b1a")
+
 #set page(
   paper: "a4",
-  margin: (top: 3cm, bottom: 2.5cm, left: 2.8cm, right: 2.8cm),
+  margin: (top: 2.5cm, bottom: 2.5cm, left: 2.8cm, right: 2.2cm),
   header: [
-    #set text(size: 9pt, fill: rgb("#1a3a5c"))
-    #grid(columns: (1fr, 1fr),
-      [*Introdução a Algoritmos*],
-      align(right)[Raoni F. S. Teixeira])
-    #line(length: 100%, stroke: 0.5pt + rgb("#1a3a5c"))
+    #set text(size: 8pt, fill: luma(120))
+    #grid(
+      columns: (1fr, 1fr),
+      align(left)[Programação de Computadores],
+      align(right)[Aula 3],
+    )
+    #line(length: 100%, stroke: 0.4pt + luma(180))
   ],
   footer: [
-    #line(length: 100%, stroke: 0.5pt + rgb("#1a3a5c"))
-    #set text(size: 9pt, fill: rgb("#1a3a5c"))
-    #grid(columns: (1fr, 1fr),
-      [Aula 3 — Decisões],
-      align(right)[#context counter(page).display("1")])
-  ]
+    #line(length: 100%, stroke: 0.4pt + luma(180))
+    #set text(size: 8pt, fill: luma(120))
+    #grid(
+      columns: (1fr, 1fr),
+      align(left)[Raoni F. S. Teixeira],
+    )
+  ],
 )
 
-#set text(font: "Linux Libertine", size: 11pt, lang: "pt")
-#set par(justify: true, leading: 0.75em)
-#set heading(numbering: "1.")
+#show heading: set block(below: 2em)
 
-// ── Macros ───────────────────────────────────────────────────
+// ---------- tipografia ----------
+#set text(font: "Linux Libertine", size: 11pt)
+#set par(justify: true, leading: 0.65em)
+#set heading(numbering: "1.1")
+
 
 #let definicao(titulo, corpo) = block(
   fill: rgb("#eaf0fb"), stroke: (left: 3pt + rgb("#1a3a5c")),
@@ -54,13 +65,106 @@
   radius: 2pt, width: 100%,
 )[#text(weight: "bold", fill: rgb("#c62828"))[Atenção] \ #corpo]
 
-// ── Título ───────────────────────────────────────────────────
+#let complexidade(corpo) = block(
+  fill: rgb("#e8f5e9"), stroke: (left: 3pt + rgb("#2e7d32")),
+  inset: (left: 10pt, top: 8pt, bottom: 8pt, right: 10pt),
+  radius: 2pt, width: 100%,
+)[#text(weight: "bold", fill: rgb("#2e7d32"))[Complexidade] \ #corpo]
 
-#align(center)[
-  #text(size: 16pt, weight: "bold", fill: rgb("#1a3a5c"))[
-    Aula 3 — Decisões: Expressões Relacionais e Comandos Condicionais
-  ]
+// ============================================================
+//  CAPA DA AULA
+// ============================================================
+#block(
+  width: 100%,
+  fill: azul,
+  inset: (x: 16pt, y: 20pt),
+  radius: 4pt,
+)[
+  \
+  #text(fill: white, size: 18pt, weight: "bold")[Introdução a Algoritmos]
+  \
+  #text(fill: rgb("#aaccee"), size: 12pt)[Aula 3 – Decisões]
+  \
+  #v(4pt)
+  #text(fill: luma(200), size: 9pt)[Raoni F. S. Teixeira · 1s/2026]
 ]
+
+#v(0.8em)
+
+
+// ── Macros de ambiente ───────────────────────────────────────
+
+#let definicao(titulo, corpo) = block(
+  fill: rgb("#eaf0fb"),
+  stroke: (left: 3pt + rgb("#1a3a5c")),
+  inset: (left: 10pt, top: 8pt, bottom: 8pt, right: 10pt),
+  radius: 2pt,
+  width: 100%,
+)[
+  #text(weight: "bold", fill: rgb("#1a3a5c"))[Definição — #titulo] \
+  #corpo
+]
+
+#let destaque(corpo) = block(
+  fill: rgb("#fff8e1"),
+  stroke: (left: 3pt + rgb("#e6a817")),
+  inset: (left: 10pt, top: 8pt, bottom: 8pt, right: 10pt),
+  radius: 2pt,
+  width: 100%,
+)[#corpo]
+
+#let exemplo(titulo, corpo) = block(
+  fill: rgb("#f0faf0"),
+  stroke: (left: 3pt + rgb("#2e7d32")),
+  inset: (left: 10pt, top: 8pt, bottom: 8pt, right: 10pt),
+  radius: 2pt,
+  width: 100%,
+)[
+  #text(weight: "bold", fill: rgb("#2e7d32"))[Exemplo — #titulo] \
+  #corpo
+]
+
+#let atencao(corpo) = block(
+  fill: rgb("#fdecea"),
+  stroke: (left: 3pt + rgb("#c62828")),
+  inset: (left: 10pt, top: 8pt, bottom: 8pt, right: 10pt),
+  radius: 2pt,
+  width: 100%,
+)[
+  #text(weight: "bold", fill: rgb("#c62828"))[Atenção] \
+  #corpo
+]
+
+// ---------- ambientes ----------
+#let caixa(titulo, cor-borda, cor-fundo, corpo) = block(
+  width: 100%,
+  fill: cor-fundo,
+  stroke: (left: 3pt + cor-borda),
+  inset: (left: 10pt, right: 10pt, top: 8pt, bottom: 8pt),
+  radius: (right: 3pt),
+)[
+  #text(weight: "bold", fill: cor-borda)[#titulo] \
+  #corpo
+]
+
+#caixa(
+  "Objetivos desta aula",
+  rgb("#555555"),
+  cinza,
+  [
+    Ao final desta aula, você deverá ser capaz de:
+
+    1. Escrever condicionais if, if/else e if-else-if para implementar decisões
+       com dois ou mais casos mutuamente exclusivos;
+    2. Identificar o bug do dangling else e corrigi-lo com o uso de chaves;
+    3. Distinguir o operador de atribuição = do operador de igualdade == e
+       explicar por que a confusão não gera erro de compilação;
+    4. Ordenar condições num if-else-if de forma que a lógica produza o
+       resultado correto para todas as entradas válidas.
+  ],
+)
+
+
 #v(0.5em)
 
 // ============================================================
