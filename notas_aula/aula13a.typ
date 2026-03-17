@@ -197,11 +197,11 @@
 
 Ao longo do curso, deixamos algumas afirmações sem explicação completa:
 
-- Na Aula 8: "variáveis locais são destruídas quando a função retorna".
+- Na Aula 8: "variáveis locais são destruídas quando a função termina".
   Por quê? O que significa "destruídas"?
-- Na Aula 10: "`char *s = \"texto\"` aponta para memória somente-leitura".
+- Na Aula 10: "`char *s = "texto"` aponta para memória somente-leitura".
   Que memória é essa? Por que é somente-leitura?
-- Na Aula 9: "nunca retorne o endereço de uma variável local". Por que
+- Novamente, na Aula 8: "nunca retorne o endereço de uma variável local". Por que
   exatamente isso é perigoso?
 
 Todas essas respostas dependem do mesmo modelo: como a memória de um
@@ -214,6 +214,8 @@ processo é organizada. Esta aula constrói esse modelo do zero.
 Quando o sistema operacional carrega um programa para execução, ele organiza
 a memória do processo em regiões com propósitos distintos. Em sistemas Unix
 (Linux, macOS) e Windows, a organização clássica tem quatro segmentos principais:
+
+#v(2cm)
 
 #block(
   fill: rgb("#f5f5f5"),
@@ -288,10 +290,10 @@ nesse segmento os *literais de string* que aparecem no código-fonte.
 Quando você escreve:
 
 ```c
-char *msg = "Erro: valor invalido";
+char *msg = "Erro";
 ```
 
-O compilador coloca a sequência de bytes `E r r o : ...` no segmento de
+O compilador coloca a sequência de bytes 'E' 'r' 'r' 'o'  no segmento de
 código, e `msg` recebe o endereço desse local. O sistema operacional mapeia
 o segmento de código como *somente-leitura* — por razões de segurança
 (impede que o programa sobrescreva suas próprias instruções) e eficiência

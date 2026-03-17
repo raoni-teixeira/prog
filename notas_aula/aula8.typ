@@ -196,7 +196,7 @@ acontecendo na memória.
 // ============================================================
 
 A memória do computador pode ser imaginada como uma sequência muito longa de
-caixinhas numeradas, onde cada caixinha armazena exatamente um byte. O número
+caixinhas numeradas que armazenam exatamente um byte. O número
 de cada caixinha é o seu *endereço*.
 
 #block(
@@ -225,7 +225,7 @@ de cada caixinha é o seu *endereço*.
   #text(fill: rgb("#b55a00"))[Bytes 1004-1007: `int y = 20`]
 ]
 
-Quando você declara `int x = 10`, o compilador reserva 4 bytes contíguos na
+Quando você declara `int x = 10`, o compilador reserva geralmente 4 bytes contíguos na
 memória (pois `int` tem 32 bits = 4 bytes numa máquina moderna) e armazena o
 valor 10 nesses bytes. O *endereço* da variável `x` é o número do primeiro
 byte que ela ocupa — neste exemplo, 1000.
@@ -603,7 +603,7 @@ int *ponteiro_perigoso() {
 }
 ```
 
-Quando a função retorna, a variável local `x` deixa de existir — mas o endereço
+Quando a função termina, a variável local `x` deixa de existir — mas o endereço
 foi devolvido ao chamador, que agora aponta para uma região de memória que pode
 ser reutilizada por qualquer outra coisa. Usar esse ponteiro é comportamento
 indefinido.
