@@ -126,7 +126,7 @@
           printf("%c", *c);
   }
   ```
-
+  #v(2cm)
 + Analise o programa:
   ```c
   void func1(int x)    { x = 9 * x; }
