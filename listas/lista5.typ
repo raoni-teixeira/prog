@@ -145,7 +145,7 @@ de `<math.h>` exceto onde indicado.]
 // ============================================================
 //  LISTA 5b — REPETIÇÃO (Problemas gerais)
 // ============================================================
-
+#pagebreak()
 #secao("Lista 5b", "Repetição — Problemas Gerais")
 
 
