@@ -155,7 +155,7 @@
 
   //#campo_resposta(6)
 
-#v(6pt)
+#pagebreak()
 #subsecao("Parte B — Algoritmos do cotidiano")
 
 + Descreva um algoritmo detalhado para ordenar um baralho de 52
