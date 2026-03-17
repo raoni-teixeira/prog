@@ -110,6 +110,7 @@
       valido = 0;
   ```
   Versão simplificada (uma única atribuição):
+  
   `valido = `#campo_resposta(1)
 
   *b)* Um ano `a` é bissexto se divisível por 4, exceto se divisível
