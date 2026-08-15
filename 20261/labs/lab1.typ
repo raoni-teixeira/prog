@@ -272,13 +272,13 @@
 
   *Problema A — Área e perímetro de um retângulo*
 
-  Escreva um programa que leia os lados (lado 1 e lado 2)  de um retângulo
+  Escreva um programa que leia a base e a altura de um retângulo
   e imprima a área e o perímetro com duas casas decimais.
 
   Algoritmo em português:
   #caixa_resposta(64pt)
 
-  Implemente, compile e teste com: lado 1 = 5, lado 2 = 3.
+  Implemente, compile e teste com: base = 5, altura = 3.
   Resultados esperados: área = 15.00, perímetro = 16.00.
 
   #v(8pt)
