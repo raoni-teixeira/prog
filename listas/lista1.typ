@@ -136,12 +136,56 @@
   canibais na margem esquerda, posição da canoa).)_
 
   //#campo_resposta(12)
-
 + *O jarro d'água.* Você tem dois jarros sem marcação: um de 5
   litros e um de 3 litros. Você dispõe de uma fonte ilimitada de
   água. Descreva um algoritmo para obter exatamente 4 litros num
   dos jarros.
-  //#campo_resposta(8)
+
+  #campo_resposta(8)
+
++ *Como medir 1 litro de leite?*
+  Você tem três recipientes sem marcação: um de 12 litros (cheio),
+  um de 7 litros (vazio) e um de 5 litros (vazio). Não há torneira
+  — a única operação permitida é transferir líquido de um recipiente
+  para outro, parando apenas quando o recipiente de origem esvazia
+  ou o de destino enche.
+
+  *a)* Descreva um algoritmo que deixe exatamente 1 litro em algum
+  dos três recipientes. Use a tabela abaixo para registrar o estado
+  (quantidade em cada recipiente) após cada operação:
+
+  #table(
+    columns: (auto, auto, auto, auto, 1fr),
+    stroke: 0.5pt + rgb("#aaa"),
+    inset: 7pt,
+    fill: (_, row) => if row == 0 { rgb("#eaf0fb") }
+                      else if calc.odd(row) { rgb("#f5f5f5") }
+                      else { white },
+    [*Passo*], [*12L*], [*7L*], [*5L*], [*Operação realizada*],
+    [Inicial], [`12`], [`0`], [`0`], [—],
+    [`1`], [], [], [], [],
+    [`2`], [], [], [], [],
+    [`3`], [], [], [], [],
+    [`4`], [], [], [], [],
+    [`5`], [], [], [], [],
+    [`6`], [], [], [], [],
+    [`7`], [], [], [], [],
+    [`8`], [], [], [], [],
+    [`9`], [], [], [], [],
+  )
+
+  *b)* Qual é o número mínimo de operações que você encontrou?
+  Existe uma solução com menos passos?
+
+  #campo_resposta(3)
+
+  *c)* Generalize: dada a restrição de que só se pode transferir
+  de um recipiente para outro (sem medir parcialmente), quais
+  quantidades é possível medir com recipientes de 12L, 7L e 5L?
+  _(Dica: qual é o MDC de 7 e 5? Qual é a relação entre o MDC
+  e as quantidades alcançáveis?)_
+
+  #campo_resposta(4)
 
 + *A lâmpada e os interruptores.* Você está numa sala com três
   interruptores. Em outra sala (inacessível com os interruptores
