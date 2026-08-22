@@ -86,7 +86,7 @@
   #text(fill: rgb("#aaccee"), size: 12pt)[Aula 4 – Lógica, switch e Legibilidade]
   \
   #v(4pt)
-  #text(fill: luma(200), size: 9pt)[Raoni F. S. Teixeira · 1s/2026]
+  #text(fill: luma(200), size: 9pt)[Raoni F. S. Teixeira · 2s/2026]
 ]
 
 #v(0.8em)

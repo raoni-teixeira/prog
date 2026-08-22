@@ -85,7 +85,7 @@
   #text(fill: rgb("#aaccee"), size: 12pt)[#title()]
   \
   #v(4pt)
-  #text(fill: luma(200), size: 9pt)[Raoni F. S. Teixeira · 1s/2026]
+  #text(fill: luma(200), size: 9pt)[Raoni F. S. Teixeira · 2s/2026]
 ]
 
 #v(0.8em)
