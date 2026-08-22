@@ -166,11 +166,13 @@
 )
 
 // ============================================================
-= A peça "variável": guardar informação
+= A peça "dados": guardar informação
 // ============================================================
 
-Na Aula 1 apresentamos as cinco peças fundamentais da programação. Nesta aula
-estudamos a primeira delas: a *variável*.
+Na Aula 1 apresentamos as peças fundamentais da programação. Entre elas, "dados":
+armazenar e organizar informação na memória. É a peça mais rica do curso — variável,
+vetor, matriz, struct e ponteiro são todos formas de "dados", em níveis crescentes
+de complexidade. Nesta aula estudamos a forma mais simples: a *variável*.
 
 Imagine que você está resolvendo uma conta longa no papel. Ao longo dos cálculos,
 você anota resultados intermediários para usá-los mais tarde — escreve "subtotal = 47"

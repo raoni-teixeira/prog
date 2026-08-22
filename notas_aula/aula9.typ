@@ -225,6 +225,10 @@ impossível — ou guardar todos os valores simultaneamente na memória.
   inteiro. Em C, o índice começa em zero.
 ]
 
+Lembre-se da peça "dados" apresentada na Aula 1: a variável era sua forma mais
+simples, um único valor. O vetor é a mesma peça em outro nível — vários valores
+do mesmo tipo, organizados por índice.
+
 A declaração reserva espaço para `n` elementos do tipo indicado:
 
 ```c

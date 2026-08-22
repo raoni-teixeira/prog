@@ -293,6 +293,10 @@ conteúdo é um endereço de memória. Essas variáveis chamam-se *ponteiros*.
   contém.
 ]
 
+Isso muda a natureza da peça "dados" da Aula 1. Até aqui, o dado era o valor
+em si — um número, um vetor de números, um registro de campos. A partir de
+agora, o dado pode ser a *localização* de outro dado na memória.
+
 A declaração de um ponteiro usa o símbolo `*` entre o tipo e o nome:
 
 ```c

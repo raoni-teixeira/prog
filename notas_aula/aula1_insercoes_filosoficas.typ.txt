@@ -1,0 +1,349 @@
+// ============================================================
+//  Aula 1 — Inserções filosóficas e epistemológicas
+//  Raoni F. S. Teixeira
+//
+//  INSTRUÇÕES DE INTEGRAÇÃO:
+//  Este arquivo contém quatro novos blocos para inserir na Aula 1.
+//  Cada bloco indica após qual seção existente deve ser inserido.
+//  Os macros #caixa, #definicao, #atencao e #exemplo já existem
+//  no preâmbulo da aula — apenas o macro #contexto é novo.
+// ============================================================
+
+// ── Novo macro (adicionar ao preâmbulo da aula) ─────────────
+//
+// #let contexto(corpo) = block(
+//   fill: rgb("#f3e5f5"), stroke: (left: 3pt + rgb("#6a1b9a")),
+//   inset: (left: 10pt, top: 8pt, bottom: 8pt, right: 10pt),
+//   radius: 2pt, width: 100%,
+// )[#text(weight: "bold", fill: rgb("#6a1b9a"))[Contexto] \ #corpo]
+//
+// ── Fim do novo macro ────────────────────────────────────────
+
+
+// ============================================================
+// BLOCO 1 — Inserir após a Seção 3 (Algoritmos)
+//           e antes da Seção 4 (Das ideias aos programas)
+// ============================================================
+
+// ── Seção 3.2 — Testar não é provar ─────────────────────────
+
+== Testar não é provar
+
+Você acabou de ver o algoritmo do par/ímpar. Antes de continuar,
+responda mentalmente: o programa está correto?
+
+Quase certamente você pensou em testar alguns valores — talvez
+4, 7, 0 e -3. Todos funcionam. Mas isso prova que o programa está
+correto?
+
+Não.
+
+Para provar que `n % 2 == 0` identifica corretamente todos os
+números pares, você precisaria testar *todos* os inteiros — e há
+infinitos deles. Nenhuma quantidade finita de testes cobre esse
+espaço. O que você fez foi acumular *evidências*, não uma *prova*.
+
+Isso não é uma limitação prática que a tecnologia resolve. É uma
+limitação de princípio.
+
+#contexto[
+  *Immanuel Kant (1724–1804)* distinguiu dois tipos de conhecimento:
+  o *a posteriori*, que vem da experiência (dos testes, das
+  observações), e o *a priori*, que precede a experiência e independe
+  dela. Para Kant, a lógica é um conhecimento a priori — suas leis
+  não são descobertas observando o mundo, mas derivadas da própria
+  estrutura do raciocínio.
+
+  Em programação, isso tem uma consequência direta. Quando dizemos
+  que `n % 2 == 0` é correto para *todo* inteiro par, não estamos
+  generalizando testes — estamos aplicando uma propriedade
+  matemática da divisão. A correção vem do raciocínio, não da
+  experiência. A lógica booleana — AND, OR, NOT — é a estrutura
+  a priori da computação: ela não foi descoberta empiricamente,
+  ela *precede e torna possível* qualquer teste.
+]
+
+O compilador confirma isso a seu modo: ele verifica se o código
+segue as regras da linguagem — mas não verifica se o raciocínio
+está correto. Você pode escrever código sintaticamente perfeito
+que faz a coisa errada. O compilador aprovará sem hesitar.
+
+#destaque[
+  *Testes encontram bugs. A ausência de bugs nos testes não garante
+  correção.* Essa distinção — entre evidência e prova — acompanhará
+  você por toda a carreira. Os melhores programadores não confundem
+  "passou nos testes" com "está correto".
+]
+
+// ── Seção 3.3 — Observar, induzir, generalizar ───────────────
+
+== Observar, induzir, generalizar
+
+Se testar não é provar, como descobrimos algoritmos?
+
+Na prática, observando padrões. Alguém percebeu que o resto de
+$n$ dividido por 2 sempre é 0 para números pares e 1 para ímpares.
+Esse padrão foi observado, generalizado e formalizado como regra.
+É assim que a maioria do conhecimento algorítmico é construída —
+não por dedução pura, mas por *indução*: observar casos particulares
+e inferir uma regra geral.
+
+#contexto[
+  *David Hume (1711–1776)* identificou um problema fundamental nesse
+  processo. Considere: você observa o sol nascendo todos os dias
+  da sua vida. Você conclui que o sol nascerá amanhã. Mas essa
+  conclusão é logicamente garantida pelas observações passadas?
+  Não — nenhuma quantidade de casos particulares *prova* a regra
+  geral. Isso é o *problema da indução*: a generalização vai além
+  do que a experiência pode justificar.
+
+  Hume não diz que a indução é inútil — diz que ela é *não
+  demonstrativa*. Usamos indução porque funciona, não porque
+  provamos que funciona. É uma aposta racional, não uma certeza
+  lógica.
+]
+
+Em programação, o problema da indução reaparece toda vez que você
+testa um programa:
+
+#exemplo("O frango e o programador")[
+  Um frango é alimentado pelo fazendeiro todos os dias às 8 da
+  manhã. Após 300 dias, o frango induziu com confiança: "o
+  fazendeiro aparece às 8 para me alimentar". No 301º dia, o
+  fazendeiro aparece às 8 — mas não para alimentar o frango.
+
+  Um programa que "passa em todos os testes" pode estar na mesma
+  situação. Os testes cobrem os casos que você pensou em testar.
+  O mundo real providenciará os casos que você não pensou.
+]
+
+A lição não é desistir de testar — é entender o que o teste
+garante e o que não garante. Testes são *necessários* mas não
+*suficientes*. Eles aumentam nossa confiança; não produzem certeza.
+
+A tensão entre Hume e Kant define dois modos de trabalho em
+computação: testamos empiricamente para ganhar confiança (Hume),
+mas provamos formalmente para ter certeza (Kant). A maioria dos
+programas vive no território de Hume. Sistemas críticos — software
+de aviação, equipamentos médicos, reatores nucleares — aspiram ao
+território de Kant, usando técnicas de *verificação formal*.
+
+// ============================================================
+// BLOCO 2 — Inserir após a Seção 5 (A linguagem C)
+//           e antes da Seção 6 (Erros)
+// ============================================================
+
+// ── Seção 5.3 — Algoritmos revelam ──────────────────────────
+
+== Algoritmos revelam o que a intuição esconde
+
+Uma das propriedades mais surpreendentes dos algoritmos é que eles
+frequentemente revelam verdades que o raciocínio intuitivo erra.
+Considere dois exemplos.
+
+=== O paradoxo do aniversário
+
+Em uma sala com 23 pessoas, qual a probabilidade de que pelo menos
+duas façam aniversário no mesmo dia do ano?
+
+A intuição de quase todo mundo diz: pequena. Há 365 dias no ano
+e apenas 23 pessoas — parece que a chance de colisão é baixa.
+
+O algoritmo discorda. A probabilidade de que *nenhuma* colisão
+ocorra é:
+
+$
+P("sem colisão") = frac(365,365) times frac(364,365) times frac(363,365) times dots times frac(343,365)
+$
+
+Calculando esse produto:
+
+```c
+#include <stdio.h>
+int main() {
+    double p = 1.0;
+    for (int k = 1; k < 23; k++)
+        p *= (365.0 - k) / 365.0;
+    printf("P(sem colisao) = %.4f\n", p);
+    printf("P(colisao)     = %.4f\n", 1 - p);
+    return 0;
+}
+```
+
+Saída: `P(colisao) = 0.5073`
+
+Com apenas 23 pessoas, a probabilidade de colisão supera 50%.
+Com 50 pessoas, supera 97%. A intuição erra porque subestima o
+número de *pares* possíveis: 23 pessoas formam
+$23 times 22 / 2 = 253$ pares — e cada par tem sua chance de
+colisão.
+
+O programa não inventou esse resultado: ele *calculou* o que
+já estava implícito na matemática, mas que nosso julgamento
+intuitivo não conseguia enxergar.
+
+=== O tabuleiro de xadrez
+
+Um grão de trigo na primeira casa, dois na segunda, quatro na
+terceira, e assim por diante — dobrando a cada casa. Quantos
+grãos na 64ª casa?
+
+```c
+#include <stdio.h>
+int main() {
+    unsigned long long graos = 1;
+    unsigned long long total = 0;
+    for (int casa = 1; casa <= 64; casa++) {
+        total += graos;
+        printf("Casa %2d: %llu\n", casa, graos);
+        graos *= 2;
+    }
+    printf("Total: %llu\n", total);
+    return 0;
+}
+```
+
+A 64ª casa contém $2^{63} \approx 9{,}2 \times 10^{18}$ grãos —
+mais do que toda a produção mundial de trigo nos últimos mil anos.
+O processo de duplicação é simples de *descrever*; seu resultado
+é impossível de *prever* sem calcular.
+
+#destaque[
+  Algoritmos são ferramentas de descoberta, não apenas de execução.
+  Eles tornam acessíveis consequências que estavam implícitas nos
+  dados mas além do alcance da intuição. Parte do poder da
+  programação está exatamente aqui: transformar perguntas difíceis
+  em computações executáveis.
+]
+
+// ============================================================
+// BLOCO 3 — Inserir após o Bloco 2 (ainda na Seção 5)
+//           como Seção 5.4, antes da Seção 6 (Erros)
+// ============================================================
+
+// ── Seção 5.4 — Os limites do computável ────────────────────
+
+== Os limites do computável
+
+Vimos que algoritmos são poderosos — resolvem problemas, revelam
+verdades, automatizam raciocínios complexos. Mas há algo que
+nenhum algoritmo pode fazer?
+
+Sim. E a prova disso é uma das grandes conquistas intelectuais
+do século XX.
+
+=== O Teorema da Parada
+
+Em 1936 — antes que existisse qualquer computador moderno —
+o matemático britânico Alan Turing provou que é impossível
+construir um algoritmo geral que decida, para *qualquer* programa
+e *qualquer* entrada, se esse programa vai eventualmente parar ou
+entrar em loop infinito.
+
+Isso é o *Teorema da Parada* (*Halting Problem*).
+
+Para sentir por que ele é verdadeiro, comece com um exemplo
+concreto. Considere o seguinte programa:
+
+```c
+/* Conjectura de Goldbach: todo inteiro par > 2 e
+   soma de dois numeros primos. Exemplos:
+   4 = 2+2, 6 = 3+3, 8 = 3+5, 100 = 3+97, ...
+   Ninguem provou (nem refutou) isso para todos os pares. */
+
+int main() {
+    for (long long n = 4; ; n += 2) {
+        if (!e_soma_de_dois_primos(n)) {
+            printf("Goldbach e falso! Contraexemplo: %lld\n", n);
+            return 0;
+        }
+    }
+}
+```
+
+Este programa para *se e somente se* a Conjectura de Goldbach
+for falsa. Se a conjectura for verdadeira (como todos acreditam
+mas ninguém provou), o programa roda para sempre.
+
+Perguntar "esse programa vai parar?" é equivalente a resolver
+um dos problemas abertos mais famosos da matemática.
+
+=== A prova por contradição
+
+Mas Turing foi além: ele provou que o problema da parada é
+*indecidível para qualquer programa*, não apenas para esse.
+A prova funciona por contradição — e tem a elegância de um
+paradoxo.
+
+#destaque[
+  *Suponha* que exista um programa `termina(P)` que recebe qualquer
+  programa `P` como entrada e devolve 1 se `P` para e 0 se `P`
+  nunca para. Com esse programa em mãos, construa o seguinte
+  programa `D`:
+
+  ```
+  programa D:
+      se termina(D) == 1:   /* se D supostamente para */
+          repita para sempre /* entao D NAO para       */
+      senao:                /* se D supostamente nao para */
+          pare              /* entao D PARA            */
+  ```
+
+  Agora pergunte: `D` para?
+
+  - Se `termina(D)` diz que D para (retorna 1): então D entra em
+    loop infinito. Mas `termina` disse que D para — contradição.
+  - Se `termina(D)` diz que D não para (retorna 0): então D para
+    imediatamente. Mas `termina` disse que D não para — contradição.
+
+  Em qualquer caso, `termina` está errado sobre `D`. Logo, um
+  programa `termina` perfeito não pode existir.
+]
+
+A estrutura desse argumento é a mesma do paradoxo do mentiroso
+("esta frase é falsa"): a *autorreferência* cria uma contradição
+irresolvível. Turing transformou esse paradoxo filosófico numa
+prova matemática rigorosa.
+
+=== O que isso significa na prática
+
+O Teorema da Parada não diz que *nenhum* programa específico
+pode ter sua parada verificada — muitos podem. Diz que não existe
+um *método geral* que funcione para todos os programas.
+
+As consequências são profundas:
+
+- Não existe verificador de vírus perfeito: decidir se um programa
+  arbitrário tem comportamento malicioso é equivalente ao problema
+  da parada.
+- Não existe compilador que detecta todos os loops infinitos:
+  compiladores podem detectar alguns casos óbvios, mas não todos.
+- Alguns problemas matemáticos podem ser genuinamente
+  incomputáveis: não por falta de tecnologia, mas por razão
+  matemática fundamental.
+
+#contexto[
+  Alan Turing (1912–1954) provou o Teorema da Parada em 1936,
+  antes de qualquer computador moderno existir, usando o conceito
+  abstrato de *Máquina de Turing*. O mesmo artigo que continha
+  essa prova de impossibilidade também definia formalmente o que
+  significa *computar* — e é considerado o documento fundador da
+  ciência da computação.
+
+  O resultado de Turing está em diálogo direto com o Teorema da
+  Incompletude de Gödel (1931), que provou que em qualquer sistema
+  formal suficientemente expressivo existem afirmações verdadeiras
+  que não podem ser provadas dentro do sistema. Hume estava certo
+  que a indução não prova tudo; Gödel e Turing mostraram que a
+  dedução também tem limites.
+]
+
+Começamos esta aula dizendo que programar é montar um
+quebra-cabeça com um conjunto fixo de peças. O Teorema da Parada
+revela algo mais profundo: há quebra-cabeças para os quais as
+peças simplesmente não existem — não porque ninguém as inventou,
+mas porque a lógica proíbe sua existência.
+
+Isso não é motivo de desânimo. É, ao contrário, uma das conquistas
+intelectuais mais belas da humanidade: a demonstração, usando
+apenas raciocínio, dos limites exatos do raciocínio.

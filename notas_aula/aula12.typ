@@ -222,6 +222,11 @@ o *registro* de um aluno. Em C, isso se faz com `struct`.
   da struct é chamada de *campo* ou *membro*.
 ]
 
+Na Aula 1, apresentamos "dados" como a peça de guardar e organizar informação.
+Vetor e matriz organizam vários valores do *mesmo* tipo; a struct dá um passo
+diferente: organiza valores de tipos *diferentes* que descrevem uma mesma
+entidade. É a mesma peça, agora heterogênea.
+
 ```c
 struct Aluno {
     char  nome[100];

@@ -208,6 +208,9 @@ inteira" para uma função de forma organizada. Uma *matriz* resolve o problema:
 ela generaliza o vetor para duas dimensões, organizando dados em linhas e
 colunas, acessíveis por dois índices.
 
+Continua sendo a mesma peça "dados" da Aula 1: variável, vetor e matriz guardam
+a mesma coisa — valores do mesmo tipo — em complexidade crescente.
+
 // ============================================================
 = Declaração e acesso
 // ============================================================
