@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Do código repetido ao while — Laboratório de Algoritmos em C</title>
+<style>
+:root{
+  --tinta:#0E3446;
+  --agua:#2A7B8C;
+  --agua-clara:#D9E7E3;
+  --papel:#F6F8F8;
+  --muda:#B36A00;
+  --muda-fundo:#FBEBD0;
+  --erro:#A8321E;
+  --acerto:#1F6B4A;
+  --linha:#C7D6D4;
+  --cinza:#5C7076;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype",serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--papel);color:var(--tinta);
+  font-family:var(--serif);font-size:17px;line-height:1.6;
+}
+.faixa{max-width:960px;margin:0 auto;padding:0 20px}
+.prosa{max-width:64ch}
+h1,h2,h3{line-height:1.2;font-weight:normal}
+h1{font-size:2.1rem;margin:0 0 .3em}
+h2{font-size:1.5rem;margin:0 0 .4em}
+h3{font-size:1.12rem;margin:1.6em 0 .5em}
+p{margin:0 0 1em}
+a{color:var(--agua)}
+:focus-visible{outline:3px solid var(--muda);outline-offset:2px;border-radius:2px}
+
+/* ---- topo ---- */
+header{background:var(--tinta);color:#EAF1F0;padding:34px 0 30px}
+header h1{color:#fff}
+header .sub{color:#A9C4C8;max-width:60ch;margin:0}
+.vitrine{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-top:26px}
+.vitrine .seta{color:#7FA7AD;font-size:1.5rem;text-align:center}
+.vitrine .rot{font-size:.8rem;color:#A9C4C8;font-family:var(--mono);margin-bottom:6px}
+
+/* ---- código ---- */
+.cod{
+  font-family:var(--mono);font-size:.86rem;line-height:1.7;
+  background:#0A2735;color:#DCE8E7;border-radius:6px;padding:12px 14px;
+  overflow-x:auto;white-space:pre;tab-size:4;
+}
+.cod.claro{background:#fff;color:var(--tinta);border:1px solid var(--linha)}
+.cod .ln{display:inline-block;width:2.2em;color:#5E8390;user-select:none}
+.cod.claro .ln{color:#9FB4B8}
+.cod .erro-linha{background:rgba(168,50,30,.28);display:block;margin:0 -14px;padding:0 14px}
+.tk-muda{color:#F0B95B;background:rgba(240,185,91,.14);border-radius:3px;padding:0 2px}
+.cod.claro .tk-muda{color:var(--muda);background:var(--muda-fundo)}
+.tk-fixo{color:#8FD0DE}
+
+/* ---- navegação de exercícios ---- */
+nav.exs{background:#fff;border-bottom:1px solid var(--linha);position:sticky;top:0;z-index:20}
+nav.exs .faixa{display:flex;gap:2px;overflow-x:auto}
+nav.exs button{
+  font-family:var(--serif);font-size:.95rem;background:none;border:0;
+  padding:13px 14px;cursor:pointer;color:var(--cinza);white-space:nowrap;
+  border-bottom:3px solid transparent;
+}
+nav.exs button[aria-current="true"]{color:var(--tinta);border-bottom-color:var(--agua)}
+nav.exs .feito::after{content:" ✓";color:var(--acerto)}
+
+/* ---- etapas ---- */
+.etapas{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 22px;padding:0;list-style:none}
+.etapas button{
+  font-family:var(--serif);font-size:.9rem;cursor:pointer;
+  background:#fff;border:1px solid var(--linha);color:var(--cinza);
+  border-radius:20px;padding:6px 15px;display:flex;gap:7px;align-items:center;
+}
+.etapas button[aria-current="true"]{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.etapas .n{font-family:var(--mono);font-size:.78rem;opacity:.75}
+.etapas .ok{color:var(--acerto)}
+.etapas button[aria-current="true"] .ok{color:#8FD9B4}
+
+section.etapa{display:none;padding-bottom:60px}
+section.etapa.ativa{display:block}
+
+/* ---- componentes ---- */
+.duas{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.painel{background:#fff;border:1px solid var(--linha);border-radius:8px;padding:16px}
+.rot{font-family:var(--mono);font-size:.76rem;color:var(--cinza);margin-bottom:7px}
+.btn{
+  font-family:var(--serif);font-size:.98rem;cursor:pointer;
+  background:var(--agua);color:#fff;border:0;border-radius:6px;padding:9px 18px;
+}
+.btn:hover{background:#22697a}
+.btn.fantasma{background:none;color:var(--agua);border:1px solid var(--linha)}
+.btn.fantasma:hover{background:var(--agua-clara)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0}
+
+.nota{border-left:3px solid var(--agua);background:var(--agua-clara);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.nota.aviso{border-color:var(--muda);background:var(--muda-fundo)}
+.nota.ruim{border-color:var(--erro);background:#F7E4E0}
+.nota.bom{border-color:var(--acerto);background:#DFEFE6}
+.nota p:last-child{margin:0}
+.nota .titulo{font-family:var(--mono);font-size:.78rem;margin-bottom:4px}
+
+/* etapa 2: tokens clicáveis */
+.marcar{font-family:var(--mono);font-size:.88rem;line-height:2.1;background:#fff;border:1px solid var(--linha);border-radius:6px;padding:14px;overflow-x:auto;white-space:pre}
+.marcar .tk{cursor:pointer;border-bottom:2px dotted #9FB4B8;border-radius:3px;padding:1px 2px}
+.marcar .tk:hover{background:var(--agua-clara)}
+.marcar .tk.sel{background:var(--muda-fundo);color:var(--muda);border-bottom:2px solid var(--muda)}
+.marcar .tk.certo{background:#DFEFE6;color:var(--acerto);border-bottom:2px solid var(--acerto)}
+.marcar .tk.errado{background:#F7E4E0;color:var(--erro);border-bottom:2px solid var(--erro)}
+.marcar .tk.perdido{background:var(--muda-fundo);border-bottom:2px solid var(--muda);animation:pisca 1.2s ease-in-out 2}
+@keyframes pisca{50%{background:#F5D89A}}
+@media (prefers-reduced-motion:reduce){.marcar .tk.perdido{animation:none}}
+.legenda{display:flex;gap:18px;flex-wrap:wrap;font-size:.85rem;color:var(--cinza);margin-top:10px}
+.legenda span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legenda .l-muda::before{background:var(--muda-fundo);border:1px solid var(--muda)}
+.legenda .l-fixo::before{background:#fff;border:1px dotted #9FB4B8}
+
+/* etapa 3: lacunas */
+.lacuna{
+  font-family:var(--mono);font-size:.86rem;background:var(--muda-fundo);
+  border:0;border-bottom:2px solid var(--muda);color:var(--muda);
+  padding:2px 6px;border-radius:3px 3px 0 0;
+}
+.lacuna::placeholder{color:#C9A76A}
+.lacuna.ok{background:#DFEFE6;border-color:var(--acerto);color:var(--acerto)}
+.dicas{list-style:none;padding:0;margin:14px 0 0;font-size:.88rem;color:var(--cinza)}
+.dicas li{margin-bottom:5px}
+.dicas code{font-family:var(--mono);color:var(--muda)}
+
+/* saída e comparação */
+.saida{font-family:var(--mono);font-size:.86rem;background:#0A2735;color:#DCE8E7;border-radius:6px;padding:12px 14px;min-height:3em;white-space:pre-wrap;overflow-x:auto}
+.dif{font-family:var(--mono);font-size:.86rem;border-collapse:collapse;width:100%}
+.dif td{padding:2px 8px;border-bottom:1px solid var(--linha);vertical-align:top}
+.dif .marca{width:1.6em;text-align:center}
+.dif tr.difere{background:#F7E4E0}
+.dif tr.difere .marca{color:var(--erro)}
+.dif .marca.igual{color:var(--acerto)}
+
+/* teste de mesa */
+.mesa-caixa{overflow-x:auto;margin-top:10px}
+table.mesa{border-collapse:collapse;font-family:var(--mono);font-size:.82rem;min-width:100%}
+table.mesa th,table.mesa td{border:1px solid var(--linha);padding:5px 10px;text-align:center;white-space:nowrap}
+table.mesa thead th{background:var(--tinta);color:#fff;font-weight:normal;position:sticky;top:0}
+table.mesa tbody tr:nth-child(even){background:#fff}
+table.mesa td.mudou{background:var(--muda-fundo);color:var(--muda)}
+table.mesa td.saida-cel{text-align:left;color:var(--agua)}
+table.mesa input{width:4.5em;font-family:var(--mono);font-size:.82rem;border:1px solid var(--linha);border-radius:3px;padding:2px;text-align:center}
+table.mesa input.certo{background:#DFEFE6;border-color:var(--acerto)}
+table.mesa input.errado{background:#F7E4E0;border-color:var(--erro)}
+
+textarea.editor{
+  width:100%;min-height:340px;font-family:var(--mono);font-size:.86rem;line-height:1.7;
+  padding:12px 14px;border:1px solid var(--linha);border-radius:6px;background:#fff;color:var(--tinta);
+  resize:vertical;tab-size:4;
+}
+.entrada-campo{font-family:var(--mono);font-size:.86rem;padding:7px 10px;border:1px solid var(--linha);border-radius:6px;width:100%;max-width:320px}
+
+.placar{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.caso{display:flex;gap:10px;align-items:baseline;font-family:var(--mono);font-size:.84rem;padding:9px 12px;border-radius:6px;background:#fff;border:1px solid var(--linha)}
+.caso .sinal{font-size:1rem}
+.caso.passou{border-color:var(--acerto)}
+.caso.passou .sinal{color:var(--acerto)}
+.caso.falhou{border-color:var(--erro);background:#FDF5F3}
+.caso.falhou .sinal{color:var(--erro)}
+.caso .det{color:var(--cinza);white-space:pre-wrap}
+
+footer{border-top:1px solid var(--linha);padding:24px 0 50px;color:var(--cinza);font-size:.88rem}
+
+@media (max-width:760px){
+  body{font-size:16px}
+  .duas,.vitrine{grid-template-columns:1fr}
+  .vitrine .seta{transform:rotate(90deg)}
+  h1{font-size:1.6rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="faixa">
+    <h1>Do código repetido ao <code style="font-family:var(--mono);font-size:.8em">while</code></h1>
+    <p class="sub">Todo laço começa como um código repetido. A tarefa é enxergar, dentro dele, o que se repete e o que muda.</p>
+
+    <div class="vitrine">
+      <div>
+        <div class="rot">sem laço — 5 linhas</div>
+        <div class="cod"><span class="ln">1</span><span class="tk-fixo">printf</span>("%d\n", <span class="tk-muda">1</span>);
+<span class="ln">2</span><span class="tk-fixo">printf</span>("%d\n", <span class="tk-muda">2</span>);
+<span class="ln">3</span><span class="tk-fixo">printf</span>("%d\n", <span class="tk-muda">3</span>);
+<span class="ln">4</span><span class="tk-fixo">printf</span>("%d\n", <span class="tk-muda">4</span>);
+<span class="ln">5</span><span class="tk-fixo">printf</span>("%d\n", <span class="tk-muda">5</span>);</div>
+      </div>
+      <div class="seta" aria-hidden="true">→</div>
+      <div>
+        <div class="rot">com laço — a mesma saída</div>
+        <div class="cod"><span class="ln">1</span>int <span class="tk-muda">i</span> = 1;
+<span class="ln">2</span>while (<span class="tk-muda">i</span> &lt;= 5) {
+<span class="ln">3</span>    <span class="tk-fixo">printf</span>("%d\n", <span class="tk-muda">i</span>);
+<span class="ln">4</span>    <span class="tk-muda">i</span> = <span class="tk-muda">i</span> + 1;
+<span class="ln">5</span>}</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="exs" aria-label="Exercícios"><div class="faixa" id="navExs"></div></nav>
+
+<main class="faixa">
+  <div id="cabecalhoEx" class="prosa" style="margin-top:28px"></div>
+  <ul class="etapas" id="navEtapas"></ul>
+
+  <!-- ETAPA 1 -->
+  <section class="etapa" id="etapa1">
+    <h2>O código sem laço</h2>
+    <p class="prosa">Este programa resolve o problema sem nenhuma repetição: cada passo está escrito à mão. Leia com calma e execute. Ele funciona — o problema é que ele não cresce.</p>
+    <div class="duas">
+      <div>
+        <div class="rot">programa</div>
+        <div class="cod claro" id="e1Codigo"></div>
+      </div>
+      <div>
+        <div class="rot">saída</div>
+        <div class="saida" id="e1Saida">Clique em “Executar” para ver.</div>
+        <div class="acoes"><button class="btn" id="e1Rodar">Executar</button></div>
+        <div id="e1Nota"></div>
+      </div>
+    </div>
+    <div class="acoes"><button class="btn fantasma" data-ir="2">Ir para a etapa 2 →</button></div>
+  </section>
+
+  <!-- ETAPA 2 -->
+  <section class="etapa" id="etapa2">
+    <h2>Onde está o padrão</h2>
+    <p class="prosa" id="e2Pergunta"></p>
+    <div class="marcar" id="e2Codigo"></div>
+    <div class="legenda">
+      <span class="l-muda" id="e2LegMuda">muda a cada repetição</span>
+      <span class="l-fixo">continua igual</span>
+    </div>
+    <div class="acoes">
+      <button class="btn" id="e2Conferir">Conferir marcações</button>
+      <button class="btn fantasma" id="e2Limpar">Limpar</button>
+    </div>
+    <div id="e2Nota"></div>
+    <div class="acoes"><button class="btn fantasma" data-ir="3">Ir para a etapa 3 →</button></div>
+  </section>
+
+  <!-- ETAPA 3 -->
+  <section class="etapa" id="etapa3">
+    <h2>Montar o laço</h2>
+    <p class="prosa">O que muda vira uma variável; o que se repete vira o corpo do laço. Complete as três partes destacadas e compare a saída com a do código da etapa 1.</p>
+    <div class="cod claro" id="e3Codigo"></div>
+    <ul class="dicas" id="e3Dicas"></ul>
+    <div id="e3Entrada" style="margin-top:14px"></div>
+    <div class="acoes">
+      <button class="btn" id="e3Rodar">Executar e comparar</button>
+      <button class="btn fantasma" id="e3Resposta">Ver uma resposta</button>
+    </div>
+    <div id="e3Nota"></div>
+
+    <div id="e3Resultado" hidden>
+      <div class="duas" style="margin-top:18px">
+        <div>
+          <div class="rot">saída do seu laço</div>
+          <div class="saida" id="e3Saida"></div>
+        </div>
+        <div>
+          <div class="rot">comparação, linha a linha</div>
+          <div class="painel" style="padding:8px 4px"><table class="dif" id="e3Dif"></table></div>
+        </div>
+      </div>
+
+      <h3>Teste de mesa</h3>
+      <p class="prosa">Cada linha da tabela é um comando executado. A célula fica destacada quando o valor da variável muda. Repare no instante em que a condição do <code>while</code> deixa de ser verdadeira.</p>
+      <div class="acoes">
+        <button class="btn fantasma" id="e3Desafio">Esconder os valores e preencher</button>
+        <button class="btn fantasma" id="e3Conferir" hidden>Conferir tabela</button>
+      </div>
+      <div class="mesa-caixa" id="e3Mesa"></div>
+      <div id="e3NotaMesa"></div>
+    </div>
+    <div class="acoes"><button class="btn fantasma" data-ir="4">Ir para a etapa 4 →</button></div>
+  </section>
+
+  <!-- ETAPA 4 -->
+  <section class="etapa" id="etapa4">
+    <h2>Generalizar</h2>
+    <p class="prosa" id="e4Enunciado"></p>
+    <div class="duas">
+      <div>
+        <div class="rot">seu programa</div>
+        <textarea class="editor" id="e4Editor" spellcheck="false" aria-label="Editor de código C"></textarea>
+        <div class="acoes">
+          <button class="btn" id="e4Testar">Rodar os testes</button>
+          <button class="btn fantasma" id="e4Restaurar">Recomeçar</button>
+        </div>
+      </div>
+      <div>
+        <div class="rot">testes</div>
+        <div class="placar" id="e4Placar"></div>
+        <div id="e4Nota"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="faixa">
+  <p class="prosa">Laboratório de <code>while</code> em C — material de apoio adaptado da Unidade IV do fascículo <em>Introdução a Algoritmos</em> (UAB/UFMT). O compilador desta página entende um subconjunto de C: <code>int</code>, <code>float</code>, <code>printf</code>, <code>scanf</code>, <code>if/else</code>, <code>while</code> e <code>break</code>. O progresso não fica salvo ao fechar a página.</p>
+</footer>
+
+<script>
+/* ==========================================================================
+   1. INTERPRETADOR  (inserido abaixo)
+   ========================================================================== */
+/* Interpretador de um subconjunto de C, para fins didáticos.
+   Suporta: int/float, atribuição, aritmética, if/else, while, break,
+   continue, printf, scanf, ++/--, comentários.
+   Produz: saída, tabela de rastreio (teste de mesa) e erros com linha. */
+
+(function (root) {
+  'use strict';
+
+  var KEYWORDS = ['int', 'float', 'if', 'else', 'while', 'break', 'continue', 'return', 'void'];
+
+  function CError(msg, line, dica) {
+    this.msg = msg; this.line = line; this.dica = dica || null; this.isCError = true;
+  }
+
+  /* ---------------- Léxico ---------------- */
+
+  function lex(src) {
+    var toks = [], i = 0, line = 1, n = src.length;
+    var OPS3 = ['<<=', '>>='];
+    var OPS2 = ['==', '!=', '<=', '>=', '&&', '||', '++', '--', '+=', '-=', '*=', '/=', '%='];
+
+    while (i < n) {
+      var c = src[i];
+
+      if (c === '\n') { line++; i++; continue; }
+      if (c === ' ' || c === '\t' || c === '\r') { i++; continue; }
+
+      // diretivas de pré-processamento: ignoradas
+      if (c === '#') { while (i < n && src[i] !== '\n') i++; continue; }
+
+      if (c === '/' && src[i + 1] === '/') { while (i < n && src[i] !== '\n') i++; continue; }
+      if (c === '/' && src[i + 1] === '*') {
+        i += 2;
+        while (i < n && !(src[i] === '*' && src[i + 1] === '/')) { if (src[i] === '\n') line++; i++; }
+        if (i >= n) throw new CError('Comentário /* ... */ foi aberto e nunca fechado.', line);
+        i += 2; continue;
+      }
+
+      if (c === '"') {
+        var s = '', startLine = line; i++;
+        while (i < n && src[i] !== '"') {
+          if (src[i] === '\\') {
+            var e = src[i + 1];
+            if (e === 'n') s += '\n';
+            else if (e === 't') s += '\t';
+            else if (e === '\\') s += '\\';
+            else if (e === '"') s += '"';
+            else s += e;
+            i += 2;
+          } else {
+            if (src[i] === '\n') throw new CError('Texto entre aspas não foi fechado nesta linha.', startLine);
+            s += src[i]; i++;
+          }
+        }
+        if (i >= n) throw new CError('Faltou fechar as aspas do texto.', startLine);
+        i++;
+        toks.push({ t: 'str', v: s, line: startLine });
+        continue;
+      }
+
+      if (/[0-9]/.test(c)) {
+        var num = '';
+        while (i < n && /[0-9]/.test(src[i])) { num += src[i]; i++; }
+        var isFloat = false;
+        if (src[i] === '.' && /[0-9]/.test(src[i + 1] || '')) {
+          isFloat = true; num += '.'; i++;
+          while (i < n && /[0-9]/.test(src[i])) { num += src[i]; i++; }
+        }
+        toks.push({ t: 'num', v: parseFloat(num), float: isFloat, line: line });
+        continue;
+      }
+
+      if (/[A-Za-z_]/.test(c)) {
+        var id = '';
+        while (i < n && /[A-Za-z0-9_]/.test(src[i])) { id += src[i]; i++; }
+        toks.push({ t: KEYWORDS.indexOf(id) >= 0 ? id : 'id', v: id, line: line });
+        continue;
+      }
+
+      var three = src.substr(i, 3), two = src.substr(i, 2);
+      if (OPS3.indexOf(three) >= 0) { toks.push({ t: three, line: line }); i += 3; continue; }
+      if (OPS2.indexOf(two) >= 0) { toks.push({ t: two, line: line }); i += 2; continue; }
+      if ('+-*/%<>=!(){};,&'.indexOf(c) >= 0) { toks.push({ t: c, line: line }); i++; continue; }
+
+      throw new CError('O caractere "' + c + '" não é reconhecido.', line);
+    }
+    toks.push({ t: 'eof', line: line });
+    return toks;
+  }
+
+  /* ---------------- Sintaxe ---------------- */
+
+  function Parser(toks) { this.toks = toks; this.p = 0; this.avisos = []; }
+
+  Parser.prototype.peek = function (k) { return this.toks[this.p + (k || 0)]; };
+  Parser.prototype.at = function (t) { return this.toks[this.p].t === t; };
+  Parser.prototype.next = function () { return this.toks[this.p++]; };
+  Parser.prototype.line = function () { return this.toks[this.p].line; };
+
+  Parser.prototype.expect = function (t, oQue) {
+    if (!this.at(t)) {
+      var achou = this.toks[this.p];
+      var desc = achou.t === 'eof' ? 'o fim do arquivo' : '"' + (achou.v !== undefined ? achou.v : achou.t) + '"';
+      // Um ";" que falta pertence ao fim da linha anterior, não ao início da próxima.
+      var linha = achou.line;
+      var ant = this.toks[this.p - 1];
+      if (t === ';' && ant && ant.line < achou.line) linha = ant.line;
+      throw new CError('Esperava ' + (oQue || '"' + t + '"') + ' e encontrei ' + desc + '.', linha);
+    }
+    return this.next();
+  };
+
+  Parser.prototype.parsePrograma = function () {
+    var main = null;
+    while (!this.at('eof')) {
+      var tipo = this.at('int') || this.at('float') || this.at('void');
+      if (tipo && this.peek(1).t === 'id' && this.peek(2).t === '(') {
+        this.next();
+        var nome = this.next().v;
+        this.expect('(');
+        while (!this.at(')') && !this.at('eof')) this.next();
+        this.expect(')');
+        var corpo = this.parseBloco();
+        if (nome === 'main') main = corpo;
+      } else {
+        throw new CError('Só consigo ler o programa a partir da função main. Escreva o código dentro de "int main() { ... }".', this.line());
+      }
+    }
+    if (!main) throw new CError('Não encontrei a função main. Todo programa em C começa por "int main() { ... }".', 1);
+    return main;
+  };
+
+  Parser.prototype.parseBloco = function () {
+    var abre = this.expect('{', 'a chave de abertura "{"');
+    var corpo = [];
+    while (!this.at('}')) {
+      if (this.at('eof')) throw new CError('A chave "{" aberta aqui nunca foi fechada com "}".', abre.line);
+      corpo.push(this.parseStmt());
+    }
+    this.next();
+    return { tipo: 'bloco', corpo: corpo, line: abre.line };
+  };
+
+  Parser.prototype.parseStmt = function () {
+    var ln = this.line();
+
+    if (this.at('{')) return this.parseBloco();
+    if (this.at(';')) { this.next(); return { tipo: 'vazio', line: ln }; }
+
+    if (this.at('int') || this.at('float')) {
+      var tipo = this.next().t, decls = [];
+      do {
+        var nome = this.expect('id', 'o nome de uma variável').v;
+        var init = null;
+        if (this.at('=')) { this.next(); init = this.parseExpr(); }
+        decls.push({ nome: nome, init: init });
+      } while (this.at(',') && this.next());
+      this.expect(';', 'um ponto e vírgula ";" no fim da declaração');
+      return { tipo: 'decl', tipoC: tipo, decls: decls, line: ln };
+    }
+
+    if (this.at('if')) {
+      this.next();
+      this.expect('(', 'um parêntese "(" depois de if');
+      var cond = this.parseExpr();
+      if (cond.tipo === 'atrib' && cond.op === '=') {
+        this.avisos.push({ line: ln, msg: 'Dentro do if você usou "=" (atribuição). Para comparar, use "==".' });
+      }
+      this.expect(')', 'um parêntese ")" fechando a condição');
+      if (this.at(';')) {
+        this.avisos.push({ line: ln, msg: 'Há um ponto e vírgula logo depois do if. Ele encerra o comando ali mesmo, e o bloco abaixo roda sempre.' });
+      }
+      var entao = this.parseStmt(), senao = null;
+      if (this.at('else')) { this.next(); senao = this.parseStmt(); }
+      return { tipo: 'if', cond: cond, entao: entao, senao: senao, line: ln };
+    }
+
+    if (this.at('while')) {
+      this.next();
+      this.expect('(', 'um parêntese "(" depois de while');
+      var wcond = this.parseExpr();
+      if (wcond.tipo === 'atrib' && wcond.op === '=') {
+        this.avisos.push({ line: ln, msg: 'Dentro do while você usou "=" (atribuição). Para comparar, use "==".' });
+      }
+      this.expect(')', 'um parêntese ")" fechando a condição');
+      if (this.at(';')) {
+        this.avisos.push({ line: ln, msg: 'Há um ponto e vírgula logo depois do while. O corpo do laço fica vazio e o programa trava repetindo nada.' });
+      }
+      var corpo = this.parseStmt();
+      return { tipo: 'while', cond: wcond, corpo: corpo, line: ln };
+    }
+
+    if (this.at('break')) { this.next(); this.expect(';'); return { tipo: 'break', line: ln }; }
+    if (this.at('continue')) { this.next(); this.expect(';'); return { tipo: 'continue', line: ln }; }
+    if (this.at('return')) {
+      this.next();
+      var val = this.at(';') ? null : this.parseExpr();
+      this.expect(';', 'um ponto e vírgula ";" depois do return');
+      return { tipo: 'return', val: val, line: ln };
+    }
+    if (this.at('else')) {
+      throw new CError('Encontrei um "else" sem um "if" correspondente antes dele.', ln);
+    }
+
+    var e = this.parseExpr();
+    this.expect(';', 'um ponto e vírgula ";" no fim do comando');
+    return { tipo: 'expr', expr: e, line: ln };
+  };
+
+  /* Expressões, da menor precedência para a maior */
+
+  Parser.prototype.parseExpr = function () { return this.parseAtrib(); };
+
+  Parser.prototype.parseAtrib = function () {
+    var esq = this.parseOu();
+    var ops = ['=', '+=', '-=', '*=', '/=', '%='];
+    if (ops.indexOf(this.peek().t) >= 0) {
+      var op = this.next(), ln = op.line;
+      if (esq.tipo !== 'var') throw new CError('Só é possível atribuir um valor a uma variável.', ln);
+      var dir = this.parseAtrib();
+      return { tipo: 'atrib', op: op.t, nome: esq.nome, valor: dir, line: ln };
+    }
+    return esq;
+  };
+
+  function bin(self, sub, ops) {
+    var esq = sub.call(self);
+    while (ops.indexOf(self.peek().t) >= 0) {
+      var op = self.next();
+      var dir = sub.call(self);
+      esq = { tipo: 'bin', op: op.t, esq: esq, dir: dir, line: op.line };
+    }
+    return esq;
+  }
+
+  Parser.prototype.parseOu = function () { return bin(this, this.parseE, ['||']); };
+  Parser.prototype.parseE = function () { return bin(this, this.parseIgual, ['&&']); };
+  Parser.prototype.parseIgual = function () { return bin(this, this.parseRel, ['==', '!=']); };
+  Parser.prototype.parseRel = function () { return bin(this, this.parseSoma, ['<', '>', '<=', '>=']); };
+  Parser.prototype.parseSoma = function () { return bin(this, this.parseMult, ['+', '-']); };
+  Parser.prototype.parseMult = function () { return bin(this, this.parseUnario, ['*', '/', '%']); };
+
+  Parser.prototype.parseUnario = function () {
+    var t = this.peek();
+    if (t.t === '-' || t.t === '!' || t.t === '+') {
+      this.next();
+      return { tipo: 'un', op: t.t, arg: this.parseUnario(), line: t.line };
+    }
+    if (t.t === '++' || t.t === '--') {
+      this.next();
+      var alvo = this.parseUnario();
+      if (alvo.tipo !== 'var') throw new CError('O operador ' + t.t + ' só pode ser aplicado a uma variável.', t.line);
+      return { tipo: 'incdec', op: t.t, nome: alvo.nome, pos: false, line: t.line };
+    }
+    return this.parsePos();
+  };
+
+  Parser.prototype.parsePos = function () {
+    var e = this.parsePrim();
+    while (this.at('++') || this.at('--')) {
+      var op = this.next();
+      if (e.tipo !== 'var') throw new CError('O operador ' + op.t + ' só pode ser aplicado a uma variável.', op.line);
+      e = { tipo: 'incdec', op: op.t, nome: e.nome, pos: true, line: op.line };
+    }
+    return e;
+  };
+
+  Parser.prototype.parsePrim = function () {
+    var t = this.peek();
+
+    if (t.t === 'num') { this.next(); return { tipo: 'num', v: t.v, float: t.float, line: t.line }; }
+    if (t.t === 'str') { this.next(); return { tipo: 'str', v: t.v, line: t.line }; }
+
+    if (t.t === '(') {
+      this.next();
+      var e = this.parseExpr();
+      this.expect(')', 'um parêntese ")" para fechar');
+      return e;
+    }
+
+    if (t.t === 'id') {
+      this.next();
+      if (this.at('(')) {
+        this.next();
+        var args = [];
+        if (!this.at(')')) {
+          do {
+            if (this.at('&')) { this.next(); var alvo = this.expect('id', 'o nome de uma variável depois de "&"'); args.push({ tipo: 'end', nome: alvo.v, line: alvo.line }); }
+            else args.push(this.parseExpr());
+          } while (this.at(',') && this.next());
+        }
+        this.expect(')', 'um parêntese ")" fechando a chamada');
+        return { tipo: 'chamada', nome: t.v, args: args, line: t.line };
+      }
+      return { tipo: 'var', nome: t.v, line: t.line };
+    }
+
+    if (t.t === 'eof') throw new CError('O programa terminou antes do esperado. Falta fechar alguma chave ou parêntese?', t.line);
+    throw new CError('Não esperava "' + (t.v !== undefined ? t.v : t.t) + '" aqui.', t.line);
+  };
+
+  /* ---------------- Execução ---------------- */
+
+  var BREAK = { sinal: 'break' }, CONTINUE = { sinal: 'continue' }, RETURN = { sinal: 'return' };
+
+  function Maquina(opts) {
+    this.vars = {};
+    this.ordem = [];
+    this.saida = '';
+    this.rastro = [];
+    this.passos = 0;
+    this.maxPassos = opts.maxPassos || 200000;
+    this.maxRastro = opts.maxRastro || 400;
+    this.entrada = (opts.entrada || '').trim().length ? opts.entrada.trim().split(/\s+/) : [];
+    this.entradaPos = 0;
+    this.rastroCortado = false;
+  }
+
+  Maquina.prototype.snapshot = function () {
+    var s = {};
+    for (var i = 0; i < this.ordem.length; i++) {
+      var k = this.ordem[i];
+      s[k] = this.vars[k].def ? this.vars[k].v : null;
+    }
+    return s;
+  };
+
+  Maquina.prototype.registra = function (line, impresso) {
+    if (this.rastro.length >= this.maxRastro) { this.rastroCortado = true; return; }
+    this.rastro.push({ line: line, vars: this.snapshot(), saida: impresso || '' });
+  };
+
+  Maquina.prototype.declara = function (nome, tipo, line) {
+    if (Object.prototype.hasOwnProperty.call(this.vars, nome)) {
+      throw new CError('A variável "' + nome + '" já foi declarada antes.', line);
+    }
+    this.vars[nome] = { tipo: tipo, v: 0, def: false };
+    this.ordem.push(nome);
+  };
+
+  Maquina.prototype.busca = function (nome, line) {
+    if (!Object.prototype.hasOwnProperty.call(this.vars, nome)) {
+      throw new CError('A variável "' + nome + '" não foi declarada.', line,
+        'Declare antes de usar, por exemplo: int ' + nome + ';');
+    }
+    return this.vars[nome];
+  };
+
+  Maquina.prototype.le = function (nome, line) {
+    var c = this.busca(nome, line);
+    if (!c.def) {
+      throw new CError('A variável "' + nome + '" está sendo usada antes de receber um valor.', line,
+        'Em C ela contém lixo de memória. Atribua algo antes, por exemplo: ' + nome + ' = 0;');
+    }
+    return c.v;
+  };
+
+  Maquina.prototype.grava = function (nome, valor, line) {
+    var c = this.busca(nome, line);
+    if (c.tipo === 'int') valor = valor < 0 ? Math.ceil(valor) : Math.floor(valor);
+    c.v = valor; c.def = true;
+    return valor;
+  };
+
+  Maquina.prototype.passo = function (line) {
+    this.passos++;
+    if (this.passos > this.maxPassos) {
+      throw new CError('O programa executou ' + this.maxPassos.toLocaleString('pt-BR') + ' comandos e não terminou.', line,
+        'Isso é um laço infinito: a condição do while nunca fica falsa. Verifique se a variável de controle é atualizada dentro do corpo do laço.');
+    }
+  };
+
+  Maquina.prototype.execBloco = function (bloco) {
+    for (var i = 0; i < bloco.corpo.length; i++) {
+      var r = this.exec(bloco.corpo[i]);
+      if (r) return r;
+    }
+    return null;
+  };
+
+  Maquina.prototype.exec = function (s) {
+    this.passo(s.line);
+    var antes;
+
+    switch (s.tipo) {
+      case 'bloco':
+        return this.execBloco(s);
+
+      case 'vazio':
+        return null;
+
+      case 'decl':
+        for (var i = 0; i < s.decls.length; i++) {
+          var d = s.decls[i];
+          this.declara(d.nome, s.tipoC, s.line);
+          if (d.init) this.grava(d.nome, this.aval(d.init), s.line);
+        }
+        this.registra(s.line);
+        return null;
+
+      case 'expr':
+        antes = this.saida.length;
+        this.aval(s.expr);
+        this.registra(s.line, this.saida.slice(antes));
+        return null;
+
+      case 'if':
+        this.registra(s.line);
+        if (verdade(this.aval(s.cond))) return this.exec(s.entao);
+        if (s.senao) return this.exec(s.senao);
+        return null;
+
+      case 'while':
+        while (true) {
+          this.passo(s.line);
+          this.registra(s.line);
+          if (!verdade(this.aval(s.cond))) break;
+          var r = this.exec(s.corpo);
+          if (r === BREAK) break;
+          if (r === RETURN) return r;
+        }
+        return null;
+
+      case 'break': return BREAK;
+      case 'continue': return CONTINUE;
+
+      case 'return':
+        if (s.val) this.aval(s.val);
+        this.registra(s.line);
+        return RETURN;
+    }
+    return null;
+  };
+
+  function verdade(v) { return v !== 0; }
+
+  Maquina.prototype.aval = function (e) {
+    switch (e.tipo) {
+      case 'num': return e.v;
+      case 'str': return e.v;
+      case 'var': return this.le(e.nome, e.line);
+
+      case 'un': {
+        var v = this.aval(e.arg);
+        if (e.op === '-') return -v;
+        if (e.op === '+') return v;
+        return v === 0 ? 1 : 0;
+      }
+
+      case 'incdec': {
+        var atual = this.le(e.nome, e.line);
+        var novo = e.op === '++' ? atual + 1 : atual - 1;
+        this.grava(e.nome, novo, e.line);
+        return e.pos ? atual : novo;
+      }
+
+      case 'atrib': {
+        var val = this.aval(e.valor);
+        if (e.op !== '=') {
+          var a = this.le(e.nome, e.line), op = e.op[0];
+          val = this.binOp(op, a, val, e.line, this.ehFloat(e) || this.ehFloat(e.valor));
+        }
+        return this.grava(e.nome, val, e.line);
+      }
+
+      case 'bin': {
+        if (e.op === '&&') return verdade(this.aval(e.esq)) && verdade(this.aval(e.dir)) ? 1 : 0;
+        if (e.op === '||') return verdade(this.aval(e.esq)) || verdade(this.aval(e.dir)) ? 1 : 0;
+        var real = this.ehFloat(e.esq) || this.ehFloat(e.dir);
+        return this.binOp(e.op, this.aval(e.esq), this.aval(e.dir), e.line, real);
+      }
+
+      case 'chamada': return this.chama(e);
+
+      case 'end':
+        throw new CError('O operador "&" só pode ser usado nos argumentos do scanf.', e.line);
+    }
+    throw new CError('Expressão não reconhecida.', e.line);
+  };
+
+  /* O tipo de uma expressão vem da declaração das variáveis, não do valor
+     que elas guardam agora: int/int é divisão inteira mesmo que dê resto. */
+  Maquina.prototype.ehFloat = function (e) {
+    switch (e.tipo) {
+      case 'num': return !!e.float;
+      case 'var': case 'incdec': case 'atrib': {
+        var c = this.vars[e.nome];
+        return !!c && c.tipo === 'float';
+      }
+      case 'un': return this.ehFloat(e.arg);
+      case 'bin': return this.ehFloat(e.esq) || this.ehFloat(e.dir);
+      default: return false;
+    }
+  };
+
+  Maquina.prototype.binOp = function (op, a, b, line, real) {
+    switch (op) {
+      case '+': return a + b;
+      case '-': return a - b;
+      case '*': return a * b;
+      case '/':
+        if (b === 0) throw new CError('Divisão por zero.', line);
+        if (!real) return a / b < 0 ? Math.ceil(a / b) : Math.floor(a / b);
+        return a / b;
+      case '%':
+        if (b === 0) throw new CError('Resto de divisão por zero.', line);
+        return a % b;
+      case '<': return a < b ? 1 : 0;
+      case '>': return a > b ? 1 : 0;
+      case '<=': return a <= b ? 1 : 0;
+      case '>=': return a >= b ? 1 : 0;
+      case '==': return a === b ? 1 : 0;
+      case '!=': return a !== b ? 1 : 0;
+    }
+    throw new CError('Operador "' + op + '" não reconhecido.', line);
+  };
+
+  Maquina.prototype.chama = function (e) {
+    if (e.nome === 'printf') return this.printf(e);
+    if (e.nome === 'scanf') return this.scanf(e);
+    throw new CError('A função "' + e.nome + '" não existe neste laboratório.', e.line,
+      'Aqui só estão disponíveis printf e scanf.');
+  };
+
+  Maquina.prototype.printf = function (e) {
+    if (!e.args.length || e.args[0].tipo !== 'str') {
+      throw new CError('O printf precisa começar com um texto entre aspas.', e.line);
+    }
+    var fmt = e.args[0].v, out = '', argI = 1, i = 0;
+    while (i < fmt.length) {
+      if (fmt[i] === '%') {
+        var m = /^%(-?\d+)?(\.\d+)?([dif%c])/.exec(fmt.slice(i));
+        if (!m) { out += fmt[i]; i++; continue; }
+        if (m[3] === '%') { out += '%'; i += m[0].length; continue; }
+        if (argI >= e.args.length) {
+          throw new CError('O texto do printf pede mais valores do que os que você passou.', e.line,
+            'Cada %d precisa de um valor correspondente depois da vírgula.');
+        }
+        var v = this.aval(e.args[argI++]);
+        var txt;
+        if (m[3] === 'f') {
+          var casas = m[2] ? parseInt(m[2].slice(1), 10) : 6;
+          txt = Number(v).toFixed(casas);
+        } else if (m[3] === 'c') {
+          txt = String.fromCharCode(v);
+        } else {
+          txt = String(Math.trunc(v));
+        }
+        if (m[1]) {
+          var larg = parseInt(m[1], 10);
+          while (txt.length < Math.abs(larg)) txt = larg < 0 ? txt + ' ' : ' ' + txt;
+        }
+        out += txt;
+        i += m[0].length;
+      } else { out += fmt[i]; i++; }
+    }
+    this.saida += out;
+    return out.length;
+  };
+
+  Maquina.prototype.scanf = function (e) {
+    if (!e.args.length || e.args[0].tipo !== 'str') {
+      throw new CError('O scanf precisa começar com um texto entre aspas, como "%d".', e.line);
+    }
+    var lidos = 0;
+    for (var i = 1; i < e.args.length; i++) {
+      var a = e.args[i];
+      if (a.tipo !== 'end') {
+        throw new CError('No scanf, o nome da variável precisa vir depois de "&".', e.line,
+          'Escreva scanf("%d", &' + (a.nome || 'variavel') + ');');
+      }
+      if (this.entradaPos >= this.entrada.length) {
+        throw new CError('O programa pediu mais um valor, mas os dados de entrada acabaram.', e.line,
+          'Acrescente valores no campo "Dados de entrada" ou revise quantas leituras o laço faz.');
+      }
+      var bruto = this.entrada[this.entradaPos++];
+      var num = parseFloat(bruto);
+      if (isNaN(num)) throw new CError('O valor "' + bruto + '" nos dados de entrada não é um número.', e.line);
+      this.busca(a.nome, e.line);
+      this.grava(a.nome, num, e.line);
+      lidos++;
+    }
+    return lidos;
+  };
+
+  /* ---------------- Entrada pública ---------------- */
+
+  function executar(src, opts) {
+    opts = opts || {};
+    var res = { ok: false, saida: '', rastro: [], vars: [], avisos: [], erro: null, rastroCortado: false };
+    var m = new Maquina(opts);
+    try {
+      var toks = lex(src);
+      var p = new Parser(toks);
+      var main = p.parsePrograma();
+      res.avisos = p.avisos;
+      m.execBloco(main);
+      res.ok = true;
+    } catch (err) {
+      if (err && err.isCError) res.erro = { msg: err.msg, line: err.line, dica: err.dica };
+      else res.erro = { msg: 'Erro inesperado: ' + err.message, line: null, dica: null };
+    }
+    res.saida = m.saida;
+    res.rastro = m.rastro;
+    res.vars = m.ordem.slice();
+    res.rastroCortado = m.rastroCortado;
+    return res;
+  }
+
+  root.CLab = { executar: executar };
+
+})(typeof module !== 'undefined' && module.exports ? module.exports : window);
+
+
+/* ==========================================================================
+   2. EXERCÍCIOS
+   ========================================================================== */
+
+/* Cada exercício descreve as quatro etapas.
+   - desenrolado: linhas do código sem laço. Uma linha pode ser uma string
+     (texto fixo) ou uma lista de pedaços; {v:"...", muda:true} marca o que
+     o aluno precisa identificar na etapa 2.
+   - modelo: o programa com lacunas {{A}}, {{B}}, {{C}}...
+   - geral: o desafio final, com casos de teste. */
+
+var EXERCICIOS = [
+{
+  id:'contar',
+  aba:'1. Contar até 5',
+  titulo:'Imprimir os números de 1 a 5',
+  resumo:'O laço mais simples que existe: um contador que sobe de um em um.',
+  entrada:'',
+  desenrolado:[
+    '#include <stdio.h>','',
+    'int main() {',
+    ['    printf("%d\\n", ',{v:'1',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'2',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'3',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'4',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'5',muda:true},');'],
+    '    return 0;','}'
+  ],
+  e2:{pergunta:'Compare as cinco chamadas de <code>printf</code>. Clique em tudo que muda de uma linha para a outra.', rotulo:'muda a cada repetição'},
+  modelo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int i = {{A}};\n'+
+'    while ({{B}}) {\n'+
+'        printf("%d\\n", i);\n'+
+'        {{C}};\n'+
+'    }\n'+
+'    return 0;\n'+
+'}',
+  lacunas:[
+    {id:'A',dica:'com que valor <code>i</code> começa?',ph:'1',tam:5},
+    {id:'B',dica:'enquanto <code>i</code> for o quê, o laço continua?',ph:'i <= 5',tam:11},
+    {id:'C',dica:'o que faz <code>i</code> chegar no próximo valor?',ph:'i = i + 1',tam:13}
+  ],
+  resposta:{A:'1',B:'i <= 5',C:'i = i + 1'},
+  geral:{
+    enunciado:'Agora o 5 não é mais fixo: o programa lê um número <code>n</code> do teclado e imprime de 1 até <code>n</code>. Repare no último teste — um laço pode executar zero vez.',
+    codigo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int n, i;\n'+
+'    scanf("%d", &n);\n'+
+'\n'+
+'    /* escreva aqui o laço que imprime de 1 ate n */\n'+
+'\n'+
+'    return 0;\n'+
+'}',
+    testes:[
+      {rotulo:'n = 3',entrada:'3',esperado:'1\n2\n3\n'},
+      {rotulo:'n = 7',entrada:'7',esperado:'1\n2\n3\n4\n5\n6\n7\n'},
+      {rotulo:'n = 1',entrada:'1',esperado:'1\n'},
+      {rotulo:'n = 0',entrada:'0',esperado:''}
+    ]
+  }
+},
+{
+  id:'regressiva',
+  aba:'2. Contagem regressiva',
+  titulo:'Imprimir de 5 até 1',
+  resumo:'O mesmo padrão de contador, andando para trás. Duas das três partes do laço mudam.',
+  entrada:'',
+  desenrolado:[
+    '#include <stdio.h>','',
+    'int main() {',
+    ['    printf("%d\\n", ',{v:'5',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'4',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'3',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'2',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'1',muda:true},');'],
+    '    return 0;','}'
+  ],
+  e2:{pergunta:'De novo: clique no que muda de uma linha para a outra. O padrão é o mesmo do exercício anterior, mas a direção não.', rotulo:'muda a cada repetição'},
+  modelo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int i = {{A}};\n'+
+'    while ({{B}}) {\n'+
+'        printf("%d\\n", i);\n'+
+'        {{C}};\n'+
+'    }\n'+
+'    return 0;\n'+
+'}',
+  lacunas:[
+    {id:'A',dica:'o primeiro valor impresso é 5',ph:'5',tam:5},
+    {id:'B',dica:'até quando continuar? o último valor impresso é 1',ph:'i >= 1',tam:11},
+    {id:'C',dica:'agora <code>i</code> diminui',ph:'i = i - 1',tam:13}
+  ],
+  resposta:{A:'5',B:'i >= 1',C:'i = i - 1'},
+  geral:{
+    enunciado:'Leia <code>n</code> e conte de <code>n</code> até 1.',
+    codigo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int n, i;\n'+
+'    scanf("%d", &n);\n'+
+'\n'+
+'    /* escreva aqui o laco que imprime de n ate 1 */\n'+
+'\n'+
+'    return 0;\n'+
+'}',
+    testes:[
+      {rotulo:'n = 4',entrada:'4',esperado:'4\n3\n2\n1\n'},
+      {rotulo:'n = 1',entrada:'1',esperado:'1\n'},
+      {rotulo:'n = 6',entrada:'6',esperado:'6\n5\n4\n3\n2\n1\n'},
+      {rotulo:'n = 0',entrada:'0',esperado:''}
+    ]
+  }
+},
+{
+  id:'pares',
+  aba:'3. Só os pares',
+  titulo:'Imprimir os pares de 2 até 10',
+  resumo:'O contador não precisa andar de um em um. Aqui só muda o tamanho do passo.',
+  entrada:'',
+  desenrolado:[
+    '#include <stdio.h>','',
+    'int main() {',
+    ['    printf("%d\\n", ',{v:'2',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'4',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'6',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'8',muda:true},');'],
+    ['    printf("%d\\n", ',{v:'10',muda:true},');'],
+    '    return 0;','}'
+  ],
+  e2:{pergunta:'Clique no que muda. Depois observe: de quanto em quanto esses valores crescem?', rotulo:'muda a cada repetição'},
+  modelo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int i = {{A}};\n'+
+'    while ({{B}}) {\n'+
+'        printf("%d\\n", i);\n'+
+'        {{C}};\n'+
+'    }\n'+
+'    return 0;\n'+
+'}',
+  lacunas:[
+    {id:'A',dica:'o primeiro par',ph:'2',tam:5},
+    {id:'B',dica:'o último par impresso é 10',ph:'i <= 10',tam:11},
+    {id:'C',dica:'de 2 em 2',ph:'i = i + 2',tam:13}
+  ],
+  resposta:{A:'2',B:'i <= 10',C:'i = i + 2'},
+  geral:{
+    enunciado:'Leia <code>n</code> e imprima todos os pares de 2 até <code>n</code>. Existe mais de um caminho: andar de 2 em 2, ou andar de 1 em 1 e testar <code>i % 2 == 0</code> dentro do laço. Os dois passam nos testes.',
+    codigo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int n, i;\n'+
+'    scanf("%d", &n);\n'+
+'\n'+
+'    /* escreva aqui o laco que imprime os pares ate n */\n'+
+'\n'+
+'    return 0;\n'+
+'}',
+    testes:[
+      {rotulo:'n = 10',entrada:'10',esperado:'2\n4\n6\n8\n10\n'},
+      {rotulo:'n = 7',entrada:'7',esperado:'2\n4\n6\n'},
+      {rotulo:'n = 2',entrada:'2',esperado:'2\n'},
+      {rotulo:'n = 1',entrada:'1',esperado:''}
+    ]
+  }
+},
+{
+  id:'soma',
+  aba:'4. Somar',
+  titulo:'Somar os números de 1 a 5',
+  resumo:'Aqui aparece um segundo padrão: uma variável que guarda o resultado parcial e sobrevive de um ciclo para o outro.',
+  entrada:'',
+  desenrolado:[
+    '#include <stdio.h>','',
+    'int main() {',
+    '    int soma = 0;',
+    ['    soma = soma + ',{v:'1',muda:true},';'],
+    ['    soma = soma + ',{v:'2',muda:true},';'],
+    ['    soma = soma + ',{v:'3',muda:true},';'],
+    ['    soma = soma + ',{v:'4',muda:true},';'],
+    ['    soma = soma + ',{v:'5',muda:true},';'],
+    '    printf("Soma: %d\\n", soma);',
+    '    return 0;','}'
+  ],
+  e2:{pergunta:'Clique no que muda de uma linha para a outra. Note que <code>soma</code> aparece dos dois lados do <code>=</code> e não muda de nome: ela acumula.', rotulo:'muda a cada repetição'},
+  modelo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int soma = 0;\n'+
+'    int i = {{A}};\n'+
+'    while ({{B}}) {\n'+
+'        {{C}};\n'+
+'        {{D}};\n'+
+'    }\n'+
+'    printf("Soma: %d\\n", soma);\n'+
+'    return 0;\n'+
+'}',
+  lacunas:[
+    {id:'A',dica:'a primeira parcela',ph:'1',tam:5},
+    {id:'B',dica:'a última parcela é 5',ph:'i <= 5',tam:11},
+    {id:'C',dica:'acumular a parcela atual em <code>soma</code>',ph:'soma = soma + i',tam:18},
+    {id:'D',dica:'passar para a próxima parcela',ph:'i = i + 1',tam:13}
+  ],
+  resposta:{A:'1',B:'i <= 5',C:'soma = soma + i',D:'i = i + 1'},
+  geral:{
+    enunciado:'Leia <code>n</code> e imprima a soma de 1 até <code>n</code>, no formato <code>Soma: 15</code>. Pergunta para pensar antes de rodar: por que <code>soma</code> precisa começar valendo 0, e por que essa inicialização fica <em>fora</em> do laço?',
+    codigo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int n, i, soma;\n'+
+'    scanf("%d", &n);\n'+
+'\n'+
+'    /* escreva aqui o laco que soma de 1 ate n */\n'+
+'\n'+
+'    printf("Soma: %d\\n", soma);\n'+
+'    return 0;\n'+
+'}',
+    testes:[
+      {rotulo:'n = 5',entrada:'5',esperado:'Soma: 15\n'},
+      {rotulo:'n = 10',entrada:'10',esperado:'Soma: 55\n'},
+      {rotulo:'n = 1',entrada:'1',esperado:'Soma: 1\n'},
+      {rotulo:'n = 0',entrada:'0',esperado:'Soma: 0\n'}
+    ]
+  }
+},
+{
+  id:'maior',
+  aba:'5. O maior de todos',
+  titulo:'Encontrar o maior número digitado',
+  resumo:'O problema da Unidade IV do fascículo. Desta vez o bloco repetido é idêntico — o que muda é apenas quantas vezes ele acontece.',
+  entrada:'6 4 7',
+  desenrolado:[
+    '#include <stdio.h>','',
+    'int main() {',
+    '    int num, maior;','',
+    '    scanf("%d", &num);',
+    '    maior = num;','',
+    [{v:'    scanf("%d", &num);',muda:true}],
+    [{v:'    if (maior < num) {',muda:true}],
+    [{v:'        maior = num;',muda:true}],
+    [{v:'    }',muda:true}],
+    '',
+    [{v:'    scanf("%d", &num);',muda:true}],
+    [{v:'    if (maior < num) {',muda:true}],
+    [{v:'        maior = num;',muda:true}],
+    [{v:'    }',muda:true}],
+    '',
+    '    printf("Maior: %d\\n", maior);',
+    '    return 0;','}'
+  ],
+  e2:{pergunta:'Este caso é diferente dos anteriores. Nada muda de um trecho para o outro: o mesmo bloco aparece copiado. Clique nas linhas que se repetem sem nenhuma alteração.', rotulo:'se repete sem mudar'},
+  modelo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int n, num, maior, i;\n'+
+'    scanf("%d", &n);\n'+
+'\n'+
+'    scanf("%d", &num);\n'+
+'    maior = num;\n'+
+'\n'+
+'    i = {{A}};\n'+
+'    while ({{B}}) {\n'+
+'        scanf("%d", &num);\n'+
+'        if (maior < num) {\n'+
+'            maior = num;\n'+
+'        }\n'+
+'        {{C}};\n'+
+'    }\n'+
+'\n'+
+'    printf("Maior: %d\\n", maior);\n'+
+'    return 0;\n'+
+'}',
+  lacunas:[
+    {id:'A',dica:'o contador de repetições começa em quanto?',ph:'1',tam:5},
+    {id:'B',dica:'o primeiro número já foi lido fora do laço — sobraram <code>n - 1</code>',ph:'i <= n - 1',tam:14},
+    {id:'C',dica:'contar mais uma repetição',ph:'i = i + 1',tam:13}
+  ],
+  resposta:{A:'1',B:'i <= n - 1',C:'i = i + 1'},
+  entradaModelo:'3 6 4 7',
+  entradaAjuda:'O primeiro valor é <code>n</code>, a quantidade de números. Os demais são os números a comparar.',
+  geral:{
+    enunciado:'Escreva o programa inteiro do zero: ler <code>n</code>, ler <code>n</code> números e imprimir o maior deles. Os testes incluem <code>n = 1</code> e uma lista só de negativos — é aí que a estratégia de “começar com <code>maior = 0</code>” quebra.',
+    codigo:
+'#include <stdio.h>\n'+
+'\n'+
+'int main() {\n'+
+'    int n, num, maior, i;\n'+
+'    scanf("%d", &n);\n'+
+'\n'+
+'    /* escreva aqui o resto do programa */\n'+
+'\n'+
+'    printf("Maior: %d\\n", maior);\n'+
+'    return 0;\n'+
+'}',
+    testes:[
+      {rotulo:'3 números: 6 4 7',entrada:'3 6 4 7',esperado:'Maior: 7\n'},
+      {rotulo:'1 número: 42',entrada:'1 42',esperado:'Maior: 42\n'},
+      {rotulo:'5 números com empate',entrada:'5 3 9 2 9 1',esperado:'Maior: 9\n'},
+      {rotulo:'4 negativos',entrada:'4 -5 -2 -9 -7',esperado:'Maior: -2\n'}
+    ]
+  }
+}
+];
+
+/* ==========================================================================
+   3. INTERFACE
+   ========================================================================== */
+
+var $ = function (s, raiz) { return (raiz || document).querySelector(s); };
+var exAtual = null, etapaAtual = 1, estado = {};
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function estadoDe(ex){
+  if(!estado[ex.id]){
+    estado[ex.id] = {
+      marcadas:{}, e2ok:false, e3ok:false, e4ok:false,
+      lacunas:{}, entrada:(ex.entradaModelo!==undefined?ex.entradaModelo:ex.entrada),
+      editor:ex.geral.codigo, mesaDesafio:false
+    };
+  }
+  return estado[ex.id];
+}
+
+/* -------- navegação -------- */
+
+function montaNav(){
+  var alvo = $('#navExs'); alvo.innerHTML='';
+  EXERCICIOS.forEach(function(ex){
+    var b = document.createElement('button');
+    b.textContent = ex.aba;
+    b.onclick = function(){ abreEx(ex.id); };
+    b.dataset.ex = ex.id;
+    alvo.appendChild(b);
+  });
+}
+
+function montaEtapas(){
+  var nomes = ['O código sem laço','Onde está o padrão','Montar o laço','Generalizar'];
+  var alvo = $('#navEtapas'); alvo.innerHTML='';
+  nomes.forEach(function(nome,idx){
+    var n = idx+1;
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.innerHTML = '<span class="n">'+n+'</span> '+nome+'<span class="ok" data-ok="'+n+'"></span>';
+    b.onclick = function(){ abreEtapa(n); };
+    b.dataset.etapa = n;
+    li.appendChild(b); alvo.appendChild(li);
+  });
+}
+
+function abreEx(id){
+  exAtual = EXERCICIOS.filter(function(e){return e.id===id;})[0];
+  var st = estadoDe(exAtual);
+  document.querySelectorAll('#navExs button').forEach(function(b){
+    b.setAttribute('aria-current', b.dataset.ex===id ? 'true':'false');
+    var e = estado[b.dataset.ex];
+    b.classList.toggle('feito', !!(e && e.e2ok && e.e3ok && e.e4ok));
+  });
+  $('#cabecalhoEx').innerHTML = '<h2>'+esc(exAtual.titulo)+'</h2><p>'+exAtual.resumo+'</p>';
+  desenhaEtapa1(); desenhaEtapa2(); desenhaEtapa3(); desenhaEtapa4();
+  abreEtapa(1);
+}
+
+function abreEtapa(n){
+  etapaAtual = n;
+  for (var i=1;i<=4;i++) $('#etapa'+i).classList.toggle('ativa', i===n);
+  document.querySelectorAll('#navEtapas button').forEach(function(b){
+    b.setAttribute('aria-current', +b.dataset.etapa===n ? 'true':'false');
+  });
+  var st = estadoDe(exAtual);
+  $('[data-ok="2"]').textContent = st.e2ok?'✓':'';
+  $('[data-ok="3"]').textContent = st.e3ok?'✓':'';
+  $('[data-ok="4"]').textContent = st.e4ok?'✓':'';
+  var suave = !window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({top:0, behavior: suave ? 'smooth' : 'auto'});
+}
+
+document.querySelectorAll('[data-ir]').forEach(function(b){
+  b.onclick = function(){ abreEtapa(+b.dataset.ir); };
+});
+
+/* -------- utilidades de código -------- */
+
+function linhasDoDesenrolado(ex){
+  return ex.desenrolado.map(function(l){
+    if (typeof l === 'string') return l;
+    return l.map(function(p){ return typeof p==='string'? p : p.v; }).join('');
+  });
+}
+
+function numeraCodigo(txt, linhaErro){
+  return txt.split('\n').map(function(l,i){
+    var n = i+1;
+    var corpo = '<span class="ln">'+n+'</span>'+esc(l);
+    return (n===linhaErro) ? '<span class="erro-linha">'+corpo+'</span>' : corpo;
+  }).join('\n');
+}
+
+function nota(alvo, tipo, titulo, corpo){
+  $(alvo).innerHTML = '<div class="nota '+tipo+'"><div class="titulo">'+esc(titulo)+'</div><p>'+corpo+'</p></div>';
+}
+
+function limpaNota(alvo){ $(alvo).innerHTML=''; }
+
+function mostraErro(alvo, r){
+  if (r.erro){
+    var extra = r.erro.dica ? ' '+r.erro.dica : '';
+    nota(alvo,'ruim', r.erro.line ? 'erro na linha '+r.erro.line : 'erro',
+      esc(r.erro.msg)+extra);
+    return true;
+  }
+  if (r.avisos && r.avisos.length){
+    nota(alvo,'aviso','atenção, linha '+r.avisos[0].line, esc(r.avisos[0].msg));
+  }
+  return false;
+}
+
+function normaliza(s){
+  return s.split('\n').map(function(l){return l.replace(/\s+$/,'');})
+          .join('\n').replace(/\n+$/,'');
+}
+
+/* -------- etapa 1 -------- */
+
+function desenhaEtapa1(){
+  var ex = exAtual;
+  var txt = linhasDoDesenrolado(ex).join('\n');
+  $('#e1Codigo').innerHTML = numeraCodigo(txt);
+  $('#e1Saida').textContent = 'Clique em “Executar” para ver.';
+  limpaNota('#e1Nota');
+  $('#e1Rodar').onclick = function(){
+    var r = CLab.executar(txt, {entrada: ex.entrada});
+    $('#e1Saida').textContent = r.saida || '(sem saída)';
+    if (!mostraErro('#e1Nota', r)){
+      nota('#e1Nota','','o problema',
+        'Funciona. Mas para chegar a 100 seriam 100 linhas, e cada linha é uma chance de errar de digitação. '+
+        'Na próxima etapa você vai procurar o padrão que permite escrever isso uma vez só.');
+    }
+  };
+}
+
+/* -------- etapa 2 -------- */
+
+function desenhaEtapa2(){
+  var ex = exAtual, st = estadoDe(ex);
+  $('#e2Pergunta').innerHTML = ex.e2.pergunta;
+  $('#e2LegMuda').textContent = ex.e2.rotulo;
+
+  var alvo = $('#e2Codigo'); alvo.innerHTML='';
+  var idx = 0;
+  ex.desenrolado.forEach(function(linha, li){
+    if (li>0) alvo.appendChild(document.createTextNode('\n'));
+    if (typeof linha === 'string'){ alvo.appendChild(document.createTextNode(linha)); return; }
+    linha.forEach(function(p){
+      if (typeof p === 'string'){ alvo.appendChild(document.createTextNode(p)); return; }
+      var id = 't'+(idx++);
+      var s = document.createElement('span');
+      s.className = 'tk'; s.textContent = p.v; s.dataset.id = id;
+      s.dataset.muda = p.muda ? '1':'0';
+      s.tabIndex = 0; s.setAttribute('role','checkbox');
+      s.setAttribute('aria-checked', st.marcadas[id] ? 'true':'false');
+      if (st.marcadas[id]) s.classList.add('sel');
+      s.onclick = function(){ alterna(s); };
+      s.onkeydown = function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); alterna(s);} };
+      alvo.appendChild(s);
+    });
+  });
+
+  function alterna(s){
+    var st = estadoDe(exAtual);
+    var on = !st.marcadas[s.dataset.id];
+    st.marcadas[s.dataset.id] = on;
+    s.classList.toggle('sel', on);
+    s.setAttribute('aria-checked', on?'true':'false');
+    s.classList.remove('certo','errado','perdido');
+  }
+
+  limpaNota('#e2Nota');
+
+  $('#e2Limpar').onclick = function(){
+    estadoDe(exAtual).marcadas = {};
+    desenhaEtapa2();
+  };
+
+  $('#e2Conferir').onclick = function(){
+    var st = estadoDe(exAtual), acertos=0, faltou=0, sobrou=0;
+    alvo.querySelectorAll('.tk').forEach(function(s){
+      var deve = s.dataset.muda==='1', marcou = !!st.marcadas[s.dataset.id];
+      s.classList.remove('sel','certo','errado','perdido');
+      if (deve && marcou){ s.classList.add('certo'); acertos++; }
+      else if (!deve && marcou){ s.classList.add('errado'); sobrou++; }
+      else if (deve && !marcou){ s.classList.add('perdido'); faltou++; }
+    });
+    if (faltou===0 && sobrou===0){
+      st.e2ok = true;
+      nota('#e2Nota','bom','padrão identificado',
+        ex.id==='maior'
+        ? 'Exatamente: o bloco inteiro se repete igual. Quando nada muda dentro do corpo, o laço só precisa de um contador para saber quando parar.'
+        : 'É isso. Só um valor muda a cada repetição — e é justamente ele que vai virar a variável de controle do <code>while</code>.');
+      $('[data-ok="2"]').textContent='✓';
+    } else {
+      var msg = [];
+      if (faltou) msg.push(faltou+' trecho(s) em destaque que você não marcou');
+      if (sobrou) msg.push(sobrou+' marcação(ões) em pedaços que continuam iguais');
+      nota('#e2Nota','aviso','quase lá',
+        'Faltou reparar em: '+msg.join(' e ')+'. Compare as linhas duas a duas, da esquerda para a direita, e veja onde elas deixam de ser idênticas.');
+    }
+  };
+}
+
+/* -------- etapa 3 -------- */
+
+function codigoMontado(ex){
+  var st = estadoDe(ex), txt = ex.modelo;
+  ex.lacunas.forEach(function(l){
+    var v = (st.lacunas[l.id]||'').trim();
+    txt = txt.replace('{{'+l.id+'}}', v==='' ? ('/*'+l.id+'*/') : v);
+  });
+  return txt;
+}
+
+function desenhaEtapa3(){
+  var ex = exAtual, st = estadoDe(ex);
+
+  // código com campos no lugar das lacunas
+  var alvo = $('#e3Codigo'); alvo.innerHTML='';
+  var linhas = ex.modelo.split('\n');
+  linhas.forEach(function(linha, li){
+    if (li>0) alvo.appendChild(document.createTextNode('\n'));
+    var ln = document.createElement('span'); ln.className='ln'; ln.textContent=(li+1);
+    alvo.appendChild(ln);
+    var resto = linha, m;
+    while ((m = /\{\{([A-Z])\}\}/.exec(resto))){
+      alvo.appendChild(document.createTextNode(resto.slice(0,m.index)));
+      var conf = ex.lacunas.filter(function(l){return l.id===m[1];})[0];
+      var inp = document.createElement('input');
+      inp.className='lacuna'; inp.size=conf.tam; inp.placeholder=conf.ph;
+      inp.value = st.lacunas[conf.id]||'';
+      inp.setAttribute('aria-label','lacuna '+conf.id+': '+conf.ph);
+      inp.oninput = function(){ estadoDe(exAtual).lacunas[conf.id]=inp.value; inp.classList.remove('ok'); };
+      inp.dataset.lac = conf.id;
+      alvo.appendChild(inp);
+      resto = resto.slice(m.index+m[0].length);
+    }
+    alvo.appendChild(document.createTextNode(resto));
+  });
+
+  $('#e3Dicas').innerHTML = ex.lacunas.map(function(l){
+    return '<li><code>'+l.id+'</code> — '+l.dica+'</li>';
+  }).join('');
+
+  // campo de entrada, quando o exercício usa scanf
+  var caixaEnt = $('#e3Entrada');
+  if (ex.entradaModelo !== undefined){
+    caixaEnt.innerHTML = '<div class="rot">dados de entrada</div>'+
+      '<input class="entrada-campo" id="e3CampoEntrada" value="'+esc(st.entrada)+'">'+
+      '<p style="font-size:.85rem;color:var(--cinza);margin:6px 0 0">'+ex.entradaAjuda+'</p>';
+    $('#e3CampoEntrada').oninput = function(){ estadoDe(exAtual).entrada = this.value; };
+  } else caixaEnt.innerHTML='';
+
+  limpaNota('#e3Nota'); limpaNota('#e3NotaMesa');
+  $('#e3Resultado').hidden = true;
+  st.mesaDesafio = false;
+
+  $('#e3Resposta').onclick = function(){
+    var st = estadoDe(exAtual);
+    exAtual.lacunas.forEach(function(l){ st.lacunas[l.id] = exAtual.resposta[l.id]; });
+    desenhaEtapa3();
+    nota('#e3Nota','aviso','resposta preenchida',
+      'Execute e acompanhe o teste de mesa linha a linha. Depois volte, apague uma das partes e tente reconstruí-la de memória.');
+  };
+
+  $('#e3Rodar').onclick = rodaEtapa3;
+}
+
+/* A saída de referência sai do código sem laço. Nos exercícios que leem dados
+   do teclado, o aluno pode trocar a entrada — aí a referência passa a ser o
+   próprio modelo resolvido, rodando com a mesma entrada. */
+function saidaReferencia(ex, st){
+  if (ex.entradaModelo !== undefined){
+    var txt = ex.modelo;
+    ex.lacunas.forEach(function(l){ txt = txt.replace('{{'+l.id+'}}', ex.resposta[l.id]); });
+    return CLab.executar(txt, {entrada: st.entrada}).saida;
+  }
+  return CLab.executar(linhasDoDesenrolado(ex).join('\n'), {entrada: ex.entrada}).saida;
+}
+
+function rodaEtapa3(){
+  var ex = exAtual, st = estadoDe(ex);
+  var vazias = ex.lacunas.filter(function(l){ return !(st.lacunas[l.id]||'').trim(); });
+  if (vazias.length){
+    nota('#e3Nota','aviso','faltam lacunas',
+      'Preencha '+vazias.map(function(l){return '<code>'+l.id+'</code>';}).join(', ')+' antes de executar.');
+    return;
+  }
+
+  var codigo = codigoMontado(ex);
+  var r = CLab.executar(codigo, {entrada: st.entrada});
+  $('#e3Resultado').hidden = false;
+  $('#e3Saida').textContent = r.saida || '(sem saída)';
+
+  if (mostraErro('#e3Nota', r)){
+    $('#e3Dif').innerHTML=''; $('#e3Mesa').innerHTML='';
+    return;
+  }
+
+  // saída de referência: o código sem laço
+  var esperado = normaliza(saidaReferencia(ex, st)), obtido = normaliza(r.saida);
+  desenhaDiferenca(esperado, obtido);
+
+  if (esperado === obtido){
+    st.e3ok = true;
+    $('[data-ok="3"]').textContent='✓';
+    document.querySelectorAll('.lacuna').forEach(function(i){ i.classList.add('ok'); });
+    nota('#e3Nota','bom','mesma saída, um laço só',
+      'Seu <code>while</code> produz exatamente a saída do código da etapa 1. Agora role até o teste de mesa: ele mostra o valor de cada variável depois de cada comando.');
+  } else {
+    var dica = '';
+    if (obtido.split('\n').length > esperado.split('\n').length) dica = ' Sua saída tem linhas a mais: a condição está deixando o laço rodar uma vez além da conta.';
+    else if (obtido.split('\n').length < esperado.split('\n').length) dica = ' Sua saída tem linhas a menos: reveja o valor inicial ou o sinal da condição (<code>&lt;</code> ou <code>&lt;=</code>).';
+    nota('#e3Nota','ruim','ainda não é a mesma saída',
+      'Compare as duas colunas: as linhas em vermelho são as que não batem.'+dica);
+  }
+
+  desenhaMesa(r);
+}
+
+function desenhaDiferenca(esperado, obtido){
+  var a = esperado.split('\n'), b = obtido.split('\n');
+  var n = Math.max(a.length, b.length), html = '';
+  html += '<tr><td class="marca"></td><td style="color:var(--cinza)">esperado</td><td style="color:var(--cinza)">seu laço</td></tr>';
+  for (var i=0;i<n;i++){
+    var x = a[i]===undefined?'':a[i], y = b[i]===undefined?'':b[i];
+    var igual = x===y;
+    html += '<tr class="'+(igual?'':'difere')+'">'+
+      '<td class="marca '+(igual?'igual':'')+'">'+(igual?'✓':'✕')+'</td>'+
+      '<td>'+(x===''?'<span style="color:#9FB4B8">—</span>':esc(x))+'</td>'+
+      '<td>'+(y===''?'<span style="color:#9FB4B8">—</span>':esc(y))+'</td></tr>';
+  }
+  $('#e3Dif').innerHTML = html;
+}
+
+/* -------- teste de mesa -------- */
+
+var mesaDados = null;
+
+function desenhaMesa(r){
+  mesaDados = r;
+  var vars = r.vars;
+  var html = '<table class="mesa"><thead><tr><th>linha</th>';
+  vars.forEach(function(v){ html += '<th>'+esc(v)+'</th>'; });
+  html += '<th>saída</th></tr></thead><tbody>';
+
+  var ant = {};
+  r.rastro.forEach(function(l, i){
+    html += '<tr>';
+    html += '<td style="color:var(--cinza)">'+l.line+'</td>';
+    vars.forEach(function(v){
+      var val = l.vars[v];
+      var txt = (val===null||val===undefined) ? '—' : String(val);
+      var mudou = String(ant[v]) !== String(val);
+      html += '<td class="'+(mudou&&i>0?'mudou':'')+'" data-var="'+esc(v)+'" data-linha="'+i+'" data-val="'+esc(txt)+'">'+esc(txt)+'</td>';
+      ant[v] = val;
+    });
+    html += '<td class="saida-cel">'+(l.saida? esc(l.saida.replace(/\n/g,'⏎')) : '')+'</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  if (r.rastroCortado) html += '<p style="font-size:.85rem;color:var(--cinza)">A tabela mostra apenas os primeiros passos da execução.</p>';
+  $('#e3Mesa').innerHTML = html;
+  $('#e3Desafio').hidden = false;
+  $('#e3Conferir').hidden = true;
+  $('#e3Desafio').textContent = 'Esconder os valores e preencher';
+  limpaNota('#e3NotaMesa');
+}
+
+$('#e3Desafio').onclick = function(){
+  if (!mesaDados) return;
+  var celulas = $('#e3Mesa').querySelectorAll('td[data-var]');
+  var escondido = $('#e3Conferir').hidden === false;
+  if (!escondido){
+    celulas.forEach(function(td, i){
+      if (i < mesaDados.vars.length) return; // primeira linha fica de exemplo
+      td.classList.remove('mudou');
+      td.innerHTML = '<input aria-label="valor de '+td.dataset.var+'">';
+    });
+    $('#e3Conferir').hidden = false;
+    this.textContent = 'Mostrar os valores de novo';
+    nota('#e3NotaMesa','','sua vez',
+      'Percorra o código na ordem em que o computador percorre e preencha cada célula. A primeira linha ficou preenchida como exemplo.');
+  } else {
+    desenhaMesa(mesaDados);
+  }
+};
+
+$('#e3Conferir').onclick = function(){
+  var certos=0, errados=0;
+  $('#e3Mesa').querySelectorAll('td[data-var] input').forEach(function(inp){
+    var esperado = inp.parentNode.dataset.val;
+    var dado = inp.value.trim();
+    var ok = dado === esperado || (esperado==='—' && dado==='');
+    inp.classList.toggle('certo', ok); inp.classList.toggle('errado', !ok);
+    ok ? certos++ : errados++;
+  });
+  if (errados===0) nota('#e3NotaMesa','bom','tabela correta','Você simulou o programa inteiro na mão. É esse raciocínio que resolve a maioria dos erros de laço.');
+  else nota('#e3NotaMesa','aviso',certos+' certas, '+errados+' erradas',
+    'As células em vermelho não batem. Lembre-se: uma variável só muda quando um comando manda mudar — nas outras linhas ela repete o valor anterior.');
+};
+
+/* -------- etapa 4 -------- */
+
+function desenhaEtapa4(){
+  var ex = exAtual, st = estadoDe(ex);
+  $('#e4Enunciado').innerHTML = ex.geral.enunciado;
+  $('#e4Editor').value = st.editor;
+  $('#e4Editor').oninput = function(){ estadoDe(exAtual).editor = this.value; };
+  $('#e4Placar').innerHTML = '<p style="color:var(--cinza);font-family:var(--serif);margin:0">'+
+    ex.geral.testes.length+' casos de teste esperando. Escreva o programa e execute.</p>';
+  limpaNota('#e4Nota');
+
+  $('#e4Restaurar').onclick = function(){
+    estadoDe(exAtual).editor = exAtual.geral.codigo;
+    desenhaEtapa4();
+  };
+  $('#e4Testar').onclick = rodaEtapa4;
+}
+
+function rodaEtapa4(){
+  var ex = exAtual, st = estadoDe(ex);
+  var html = '', passou = 0, primeiroErro = null;
+
+  ex.geral.testes.forEach(function(t){
+    var r = CLab.executar(st.editor, {entrada: t.entrada, maxPassos: 60000});
+    var ok = !r.erro && normaliza(r.saida) === normaliza(t.esperado);
+    if (ok) passou++;
+    else if (!primeiroErro) primeiroErro = r;
+
+    var det;
+    if (r.erro) det = 'linha '+(r.erro.line||'?')+': '+r.erro.msg;
+    else if (!ok) det = 'esperava '+JSON.stringify(t.esperado)+', obteve '+JSON.stringify(r.saida);
+    else det = JSON.stringify(r.saida);
+
+    html += '<div class="caso '+(ok?'passou':'falhou')+'">'+
+      '<span class="sinal">'+(ok?'✓':'✕')+'</span>'+
+      '<span><strong style="font-weight:normal">'+esc(t.rotulo)+'</strong><br>'+
+      '<span class="det">'+esc(det)+'</span></span></div>';
+  });
+  $('#e4Placar').innerHTML = html;
+
+  if (passou === ex.geral.testes.length){
+    st.e4ok = true; $('[data-ok="4"]').textContent='✓';
+    nota('#e4Nota','bom','todos os casos passaram',
+      'Seu laço funciona para qualquer <code>n</code>, e não só para o caso que você tinha na cabeça enquanto escrevia. Pode seguir para o próximo exercício.');
+  } else if (primeiroErro && primeiroErro.erro && primeiroErro.erro.dica){
+    nota('#e4Nota','ruim','erro na execução', esc(primeiroErro.erro.msg)+' '+primeiroErro.erro.dica);
+  } else {
+    nota('#e4Nota','aviso', passou+' de '+ex.geral.testes.length+' casos',
+      'Casos que falham costumam ser os extremos: o menor valor possível, o zero, os negativos. Rode o teste de mesa mentalmente para o primeiro caso vermelho.');
+  }
+}
+
+/* -------- início -------- */
+montaNav(); montaEtapas(); abreEx(EXERCICIOS[0].id);
+</script>
+</body>
+</html>

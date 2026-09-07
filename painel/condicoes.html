@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Condicionais em C — ordenando três números</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papel:#fbfaf7; --tinta:#23282e; --tinta2:#5c6570;
+  --azul:#1a3a5c; --azul-claro:#e8eef6; --azul-borda:#c3d2e5;
+  --sim:#1d6f4f; --sim-bg:#e6f2ec;
+  --nao:#9c3024; --nao-bg:#f7e9e6;
+  --ambar:#b06f10; --ambar-bg:#fbf1dd;
+  --linha:#ded9d0;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--papel); color:var(--tinta);
+  font-family:var(--serif); font-size:18px; line-height:1.6;
+}
+.env{max-width:860px; margin:0 auto; padding:0 22px 80px}
+p{max-width:68ch}
+h1,h2,h3{font-weight:600; color:var(--azul); line-height:1.25; margin:0}
+h1{font-size:2rem; letter-spacing:-.01em}
+h2{font-size:1.4rem; margin:2.6rem 0 .6rem}
+h3{font-size:1.08rem; margin:1.8rem 0 .4rem}
+a{color:var(--azul)}
+code{font-family:var(--mono); font-size:.86em; background:var(--azul-claro); padding:.08em .3em; border-radius:3px}
+
+header{border-bottom:2px solid var(--azul); padding:34px 0 18px; margin-bottom:8px}
+header .curso{font-size:.82rem; color:var(--tinta2); letter-spacing:.02em; margin:0 0 6px}
+header p.sub{color:var(--tinta2); margin:.5rem 0 0; font-size:1rem}
+
+nav.etapas{
+  position:sticky; top:0; z-index:20; background:var(--papel);
+  border-bottom:1px solid var(--linha); padding:8px 0; margin-bottom:8px;
+  display:flex; gap:6px; flex-wrap:wrap;
+}
+nav.etapas button{
+  font-family:var(--serif); font-size:.92rem; color:var(--tinta2);
+  background:none; border:1px solid transparent; border-radius:6px;
+  padding:6px 11px; cursor:pointer;
+}
+nav.etapas button:hover{background:var(--azul-claro); color:var(--azul)}
+nav.etapas button[aria-current="true"]{background:var(--azul); color:#fff; border-color:var(--azul)}
+nav.etapas button .n{font-family:var(--mono); font-size:.8em; opacity:.65; margin-right:5px}
+
+section.etapa{display:none; padding-top:14px}
+section.etapa.ativa{display:block}
+
+.painel{
+  background:#fff; border:1px solid var(--linha); border-radius:10px;
+  padding:20px; margin:18px 0;
+}
+.painel h3:first-child{margin-top:0}
+
+button.acao{
+  font-family:var(--serif); font-size:.95rem; cursor:pointer;
+  background:var(--azul); color:#fff; border:1px solid var(--azul);
+  border-radius:6px; padding:7px 15px;
+}
+button.acao:hover{background:#12293f}
+button.acao.leve{background:#fff; color:var(--azul)}
+button.acao.leve:hover{background:var(--azul-claro)}
+button:disabled{opacity:.45; cursor:not-allowed}
+:focus-visible{outline:2.5px solid var(--ambar); outline-offset:2px}
+
+input[type=number],input[type=text],select{
+  font-family:var(--mono); font-size:.95rem; color:var(--tinta);
+  border:1px solid var(--azul-borda); border-radius:5px;
+  padding:5px 7px; background:#fff;
+}
+input[type=number]{width:5.2em}
+label.campo{display:inline-flex; align-items:center; gap:6px; margin-right:14px; font-size:.95rem}
+.controles{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:14px 0}
+
+pre.codigo{
+  font-family:var(--mono); font-size:.84rem; line-height:1.65;
+  background:#f4f2ec; border:1px solid var(--linha); border-radius:8px;
+  padding:12px 14px; overflow-x:auto; margin:12px 0; tab-size:2;
+}
+pre.codigo .ln{color:#a8a49a; user-select:none; display:inline-block; width:2.2em}
+textarea.codigo{
+  font-family:var(--mono); font-size:.84rem; line-height:1.65; width:100%;
+  min-height:220px; background:#f4f2ec; border:1px solid var(--linha);
+  border-radius:8px; padding:12px 14px; color:var(--tinta); resize:vertical;
+}
+
+.nota{border-left:3px solid var(--linha); padding:10px 14px; margin:14px 0; font-size:.95rem; border-radius:0}
+.nota strong{display:block; margin-bottom:2px}
+.nota.bom{border-color:var(--sim); background:var(--sim-bg)}
+.nota.ruim{border-color:var(--nao); background:var(--nao-bg)}
+.nota.pensa{border-color:var(--ambar); background:var(--ambar-bg)}
+.nota.neutra{border-color:var(--azul-borda); background:var(--azul-claro)}
+.nota .dica{display:block; margin-top:5px; color:var(--tinta2); font-size:.92rem}
+
+.saida{
+  font-family:var(--mono); font-size:.86rem; white-space:pre-wrap;
+  background:#23282e; color:#e8e4da; border-radius:8px; padding:12px 14px; margin:12px 0;
+}
+.saida:empty{display:none}
+.saida .vazio{color:#8f8a7f}
+
+/* etapa 1 — particao */
+.grupo{border-left:2px solid var(--azul-borda); padding:8px 0 8px 14px; margin:8px 0 8px 4px}
+.grupo.folha{border-left-color:var(--sim)}
+.chips{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px}
+.chip{
+  font-family:var(--mono); font-size:.8rem; padding:3px 8px; border-radius:20px;
+  background:var(--azul-claro); color:var(--azul); border:1px solid var(--azul-borda);
+}
+.grupo.folha .chip{background:var(--sim-bg); color:var(--sim); border-color:#b6d8c8}
+.perguntas{display:flex; gap:6px; flex-wrap:wrap}
+.perguntas button{
+  font-family:var(--mono); font-size:.82rem; cursor:pointer; color:var(--azul);
+  background:#fff; border:1px solid var(--azul-borda); border-radius:5px; padding:4px 10px;
+}
+.perguntas button:hover{background:var(--azul-claro)}
+.ramo{font-family:var(--mono); font-size:.76rem; color:var(--tinta2); margin:2px 0}
+.ramo b{color:var(--tinta); font-weight:600}
+.placar{font-family:var(--mono); font-size:.85rem; color:var(--tinta2)}
+
+/* etapa 2 — arvore svg */
+.arvore{width:100%; height:auto; display:block; margin:6px 0}
+.arvore .cx{fill:#fff; stroke:var(--azul-borda); stroke-width:1}
+.arvore .lbl{font-family:var(--mono); font-size:14px; fill:var(--tinta2)}
+.arvore .ed{stroke:var(--azul-borda); stroke-width:1.5; fill:none}
+.arvore .tag{font-family:var(--mono); font-size:11px; fill:#a8a49a}
+.arvore .no.on .cx{fill:var(--ambar-bg); stroke:var(--ambar); stroke-width:2}
+.arvore .no.on .lbl{fill:var(--ambar); font-weight:600}
+.arvore .folha.on .cx{fill:var(--sim-bg); stroke:var(--sim); stroke-width:2}
+.arvore .folha.on .lbl{fill:var(--sim); font-weight:600}
+.arvore .ed.on{stroke:var(--ambar); stroke-width:2.5}
+.arvore .tag.on{fill:var(--ambar); font-weight:600}
+@media (prefers-reduced-motion: no-preference){
+  .arvore .no,.arvore .folha,.arvore .ed,.arvore .tag{transition:all .18s ease}
+}
+
+table.testes{border-collapse:collapse; font-family:var(--mono); font-size:.82rem; margin:12px 0; width:100%}
+table.testes th,table.testes td{border-bottom:1px solid var(--linha); padding:5px 8px; text-align:left}
+table.testes th{color:var(--tinta2); font-weight:400; font-size:.78rem}
+table.testes td.v{color:var(--sim)} table.testes td.x{color:var(--nao)}
+
+.lacuna{
+  font-family:var(--mono); font-size:.84rem; border:1px solid var(--ambar);
+  background:var(--ambar-bg); border-radius:4px; padding:2px 5px; width:9em;
+}
+.linhas{display:grid; gap:4px}
+.linha-mod{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-family:var(--mono); font-size:.84rem}
+
+footer{margin-top:60px; padding-top:18px; border-top:1px solid var(--linha); color:var(--tinta2); font-size:.88rem}
+@media (max-width:560px){
+  body{font-size:17px}
+  h1{font-size:1.6rem}
+  .painel{padding:15px}
+}
+</style>
+</head>
+<body>
+<div class="env">
+
+<header>
+  <p class="curso">Introdução a Algoritmos · Prof. Raoni F. S. Teixeira</p>
+  <h1>Condicionais: ordenando três números</h1>
+  <p class="sub">Uma condição não escolhe uma ação. Ela parte o conjunto de casos possíveis em dois.</p>
+</header>
+
+<nav class="etapas" aria-label="Etapas">
+  <button data-ir="1" aria-current="true"><span class="n">1</span>Divida os casos</button>
+  <button data-ir="2"><span class="n">2</span>A árvore</button>
+  <button data-ir="3"><span class="n">3</span>Armadilhas</button>
+  <button data-ir="4"><span class="n">4</span>Escreva o código</button>
+</nav>
+
+<!-- ================= ETAPA 1 ================= -->
+<section class="etapa ativa" data-etapa="1">
+  <h2>Quantas perguntas bastam?</h2>
+  <p>Você recebe três números em <code>a</code>, <code>b</code> e <code>c</code>, e não sabe em que ordem eles estão. Antes de olhar, existem seis possibilidades — e uma delas é a verdadeira.</p>
+  <p>Cada comparação que você faz é uma pergunta de sim ou não. Ela não descobre a resposta: ela <em>elimina</em> parte das possibilidades. Faça perguntas até sobrar uma única possibilidade em cada ramo.</p>
+
+  <div class="painel">
+    <div id="e1Arvore"></div>
+    <div class="controles">
+      <button class="acao leve" id="e1Limpar">Recomeçar</button>
+      <span class="placar" id="e1Placar"></span>
+    </div>
+    <div id="e1Nota"></div>
+  </div>
+</section>
+
+<!-- ================= ETAPA 2 ================= -->
+<section class="etapa" data-etapa="2">
+  <h2>A mesma árvore, agora em C</h2>
+  <p>As perguntas da etapa anterior viram <code>if</code> e <code>else</code>. Cada nó da árvore é uma comparação; cada folha é um <code>printf</code>. Escolha três valores e acompanhe o caminho.</p>
+
+  <div class="painel">
+    <div class="controles">
+      <label class="campo">a <input type="number" id="e2a" value="7"></label>
+      <label class="campo">b <input type="number" id="e2b" value="3"></label>
+      <label class="campo">c <input type="number" id="e2c" value="5"></label>
+      <button class="acao" id="e2Rodar">Percorrer</button>
+      <button class="acao leve" id="e2Sorteio">Sortear</button>
+    </div>
+
+    <div id="e2SvgHost"></div>
+    <div class="saida" id="e2Saida"></div>
+    <div id="e2Nota"></div>
+
+    <h3>O código que acabou de rodar</h3>
+    <pre class="codigo" id="e2Codigo"></pre>
+    <p style="font-size:.92rem;color:var(--tinta2);max-width:68ch">A saída acima não é uma imitação: o programa é interpretado de verdade, e o caminho aceso na árvore é o rastro das condições que foram avaliadas.</p>
+  </div>
+
+  <div class="nota pensa">
+    <strong>Repare no número de comparações</strong>
+    Dois ramos terminam com duas perguntas; quatro precisam de três. Com duas perguntas de sim/não só dá para distinguir 4 respostas, e são 6 casos — por isso o pior caso não pode ser menor que 3.
+  </div>
+</section>
+
+<!-- ================= ETAPA 3 ================= -->
+<section class="etapa" data-etapa="3">
+  <h2>Quatro armadilhas</h2>
+  <p>Todos os programas abaixo compilam sem um único aviso do compilador. Três deles estão errados. Rode cada um antes de ler a explicação.</p>
+
+  <div class="painel">
+    <h3>1. Três <code>if</code> independentes</h3>
+    <p style="font-size:.95rem">Sem <code>else</code>, as três condições são testadas sempre — as três podem ser verdadeiras ao mesmo tempo. Encontre uma entrada que faça o programa imprimir mais de um resultado.</p>
+    <pre class="codigo" id="a1Codigo"></pre>
+    <div class="controles">
+      <label class="campo">a <input type="number" id="a1a" value="4"></label>
+      <label class="campo">b <input type="number" id="a1b" value="7"></label>
+      <label class="campo">c <input type="number" id="a1c" value="9"></label>
+      <button class="acao" id="a1Rodar">Executar</button>
+    </div>
+    <div class="saida" id="a1Saida"></div>
+    <div id="a1Nota"></div>
+  </div>
+
+  <div class="painel">
+    <h3>2. <code>a &lt; b &lt; c</code></h3>
+    <p style="font-size:.95rem">Escrito assim, parece dizer "b está entre a e c". Rode com <code>a = 5</code>, <code>b = 3</code>, <code>c = 9</code> e veja o que acontece.</p>
+    <pre class="codigo" id="a2Codigo"></pre>
+    <div class="controles">
+      <label class="campo">a <input type="number" id="a2a" value="5"></label>
+      <label class="campo">b <input type="number" id="a2b" value="3"></label>
+      <label class="campo">c <input type="number" id="a2c" value="9"></label>
+      <button class="acao" id="a2Rodar">Executar</button>
+    </div>
+    <div class="saida" id="a2Saida"></div>
+    <div id="a2Nota"></div>
+  </div>
+
+  <div class="painel">
+    <h3>3. <code>=</code> no lugar de <code>==</code></h3>
+    <p style="font-size:.95rem">Um caractere a menos. O programa continua válido em C, mas deixa de comparar.</p>
+    <pre class="codigo" id="a3Codigo"></pre>
+    <div class="controles">
+      <button class="acao" id="a3Rodar">Executar</button>
+    </div>
+    <div class="saida" id="a3Saida"></div>
+    <div id="a3Nota"></div>
+  </div>
+
+  <div class="painel">
+    <h3>4. Um <code>;</code> perdido</h3>
+    <p style="font-size:.95rem">O ponto e vírgula depois do <code>if( )</code> encerra o comando ali mesmo.</p>
+    <pre class="codigo" id="a4Codigo"></pre>
+    <div class="controles">
+      <button class="acao" id="a4Rodar">Executar</button>
+    </div>
+    <div class="saida" id="a4Saida"></div>
+    <div id="a4Nota"></div>
+  </div>
+</section>
+
+<!-- ================= ETAPA 4 ================= -->
+<section class="etapa" data-etapa="4">
+  <h2>Agora escreva você</h2>
+  <p>Complete as condições e as saídas. Ao testar, o programa roda nas seis ordens possíveis e também em três casos com valores repetidos — que costumam ser os que quebram a solução.</p>
+
+  <div class="painel">
+    <div id="e4Modelo" class="linhas"></div>
+    <div class="controles">
+      <button class="acao" id="e4Testar">Testar nas 9 entradas</button>
+      <button class="acao leve" id="e4Resposta">Ver uma resposta</button>
+      <button class="acao leve" id="e4Livre">Editar o código inteiro</button>
+    </div>
+    <div id="e4Editor" hidden>
+      <textarea class="codigo" id="e4Texto" spellcheck="false"></textarea>
+    </div>
+    <div id="e4Resultado"></div>
+  </div>
+
+  <div class="nota neutra">
+    <strong>E com quatro números?</strong>
+    Seis folhas cabem na tela. Com quatro números seriam 24, com cinco, 120. Encadear <code>if</code> deixa de ser viável muito rápido — ordenar de verdade exige vetores e repetição, que é para onde a disciplina vai a seguir.
+  </div>
+</section>
+
+<footer>
+  Página de apoio para estudo individual. O interpretador aceita um subconjunto de C: <code>int</code>, <code>float</code>, atribuição, aritmética, operadores relacionais e lógicos, <code>if</code>/<code>else</code>, <code>printf</code> e <code>scanf</code>. Não aceita laços — este é assunto de outra aula.
+</footer>
+
+</div>
+
+<script>
+/*__CEVAL__*/
+</script>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s);};
+
+/* ---------- navegacao ---------- */
+var nav=document.querySelectorAll('nav.etapas button');
+nav.forEach(function(b){
+  b.onclick=function(){
+    nav.forEach(function(o){o.setAttribute('aria-current', o===b?'true':'false');});
+    document.querySelectorAll('section.etapa').forEach(function(s){
+      s.classList.toggle('ativa', s.dataset.etapa===b.dataset.ir);
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+
+function nota(sel,tipo,titulo,texto){
+  var el=$(sel);
+  el.innerHTML='<div class="nota '+tipo+'"><strong>'+titulo+'</strong>'+texto+'</div>';
+}
+function limpaNota(sel){ $(sel).innerHTML=''; }
+
+function numeraLinhas(src){
+  return src.split('\n').map(function(l,i){
+    return '<span class="ln">'+(i+1)+'</span>'+l
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }).join('\n');
+}
+function mostraCodigo(sel,src){ $(sel).innerHTML=numeraLinhas(src); }
+
+function mostraSaida(sel,r){
+  var el=$(sel);
+  if(!r.ok){
+    el.textContent='erro na linha '+r.erro.linha+': '+r.erro.msg+(r.erro.dica?'\n'+r.erro.dica:'');
+    return;
+  }
+  el.innerHTML = r.saida==='' ? '<span class="vazio">(o programa não imprimiu nada)</span>'
+                              : r.saida.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+}
+function le(sel){ var v=parseInt($(sel).value,10); return isNaN(v)?0:v; }
+
+/* ================= ETAPA 1 ================= */
+
+var CASOS=[
+  {id:'abc', rot:'a<b<c', r:{a:1,b:2,c:3}},
+  {id:'acb', rot:'a<c<b', r:{a:1,b:3,c:2}},
+  {id:'bac', rot:'b<a<c', r:{a:2,b:1,c:3}},
+  {id:'bca', rot:'b<c<a', r:{a:3,b:1,c:2}},
+  {id:'cab', rot:'c<a<b', r:{a:2,b:3,c:1}},
+  {id:'cba', rot:'c<b<a', r:{a:3,b:2,c:1}}
+];
+var PERGUNTAS=[['a','b'],['a','c'],['b','c']];
+var raiz;
+
+function novaRaiz(){ raiz={casos:CASOS.slice(),perg:null,sim:null,nao:null}; }
+
+function perguntar(no,x,y){
+  var sim=[],nao=[];
+  no.casos.forEach(function(c){ (c.r[x]<c.r[y]?sim:nao).push(c); });
+  if(sim.length===0||nao.length===0){
+    return {inutil:true, lado: sim.length? 'sim':'não'};
+  }
+  no.perg=[x,y];
+  no.sim={casos:sim,perg:null,sim:null,nao:null};
+  no.nao={casos:nao,perg:null,sim:null,nao:null};
+  return {inutil:false};
+}
+
+function profundidade(no){
+  if(!no.perg) return 0;
+  return 1+Math.max(profundidade(no.sim),profundidade(no.nao));
+}
+function completa(no){
+  if(!no.perg) return no.casos.length===1;
+  return completa(no.sim)&&completa(no.nao);
+}
+function conta(no){
+  if(!no.perg) return 0;
+  return 1+conta(no.sim)+conta(no.nao);
+}
+
+function desenhaGrupo(no,rotulo){
+  var d=document.createElement('div');
+  d.className='grupo'+(no.casos.length===1?' folha':'');
+  if(rotulo){
+    var r=document.createElement('div');
+    r.className='ramo'; r.innerHTML=rotulo;
+    d.appendChild(r);
+  }
+  var chips=document.createElement('div');
+  chips.className='chips';
+  no.casos.forEach(function(c){
+    var s=document.createElement('span'); s.className='chip'; s.textContent=c.rot;
+    chips.appendChild(s);
+  });
+  d.appendChild(chips);
+
+  if(no.casos.length>1&&!no.perg){
+    var p=document.createElement('div'); p.className='perguntas';
+    PERGUNTAS.forEach(function(par){
+      var b=document.createElement('button');
+      b.textContent=par[0]+' < '+par[1]+' ?';
+      b.onclick=function(){
+        var res=perguntar(no,par[0],par[1]);
+        if(res.inutil){
+          nota('#e1Nota','pensa','Essa pergunta não separou nada',
+            'Todos os casos deste grupo respondem <b>'+res.lado+'</b> a <code>'+par[0]+' &lt; '+par[1]+
+            '</code>. Uma comparação só ajuda quando os casos que sobraram discordam dela.');
+          return;
+        }
+        limpaNota('#e1Nota');
+        redesenha();
+      };
+      p.appendChild(b);
+    });
+    d.appendChild(p);
+  }
+
+  if(no.perg){
+    d.appendChild(desenhaGrupo(no.sim,'<b>sim</b> — '+no.perg[0]+' &lt; '+no.perg[1]));
+    d.appendChild(desenhaGrupo(no.nao,'<b>não</b> — '+no.perg[0]+' &lt; '+no.perg[1]));
+  }
+  return d;
+}
+
+function redesenha(){
+  var host=$('#e1Arvore');
+  host.innerHTML='';
+  host.appendChild(desenhaGrupo(raiz,null));
+
+  var n=conta(raiz), prof=profundidade(raiz);
+  $('#e1Placar').textContent = n===0 ? '' :
+    n+' comparaç'+(n===1?'ão':'ões')+' no total · pior caminho: '+prof;
+
+  if(completa(raiz)){
+    if(prof===3&&n===5){
+      nota('#e1Nota','bom','Pronto — e com o mínimo possível',
+        'Cinco comparações no total, três no pior caminho. Não dá para fazer melhor: cada pergunta '+
+        'tem duas respostas, então duas perguntas separam no máximo 4 casos, e aqui são 6. '+
+        'Essa árvore é exatamente a estrutura de <code>if</code>/<code>else</code> da próxima etapa.');
+    } else if(prof===3){
+      nota('#e1Nota','bom','Todos os casos isolados',
+        'Você chegou lá com '+n+' comparações e pior caminho 3, que é o mínimo para o pior caso. '+
+        'Dá para chegar ao mesmo resultado com 5 comparações no total — tente recomeçar e escolher '+
+        'a primeira pergunta de modo a dividir 6 em 3 e 3.');
+    } else {
+      nota('#e1Nota','pensa','Isolou tudo, mas há caminhos longos',
+        'Pior caminho: '+prof+' perguntas. Alguma comparação separou muito pouco. '+
+        'Procure sempre a pergunta que divide o grupo mais ao meio.');
+    }
+  }
+}
+
+$('#e1Limpar').onclick=function(){ novaRaiz(); limpaNota('#e1Nota'); redesenha(); };
+novaRaiz(); redesenha();
+
+/* ================= ETAPA 2 ================= */
+
+var CODIGO_ORD=[
+  '#include <stdio.h>',
+  '',
+  'int main() {',
+  '  int a, b, c;',
+  '  scanf("%d %d %d", &a, &b, &c);',
+  '',
+  '  if (a < b) {',
+  '    if (b < c)      printf("%d %d %d", a, b, c);',
+  '    else if (a < c) printf("%d %d %d", a, c, b);',
+  '    else            printf("%d %d %d", c, a, b);',
+  '  } else {',
+  '    if (a < c)      printf("%d %d %d", b, a, c);',
+  '    else if (b < c) printf("%d %d %d", b, c, a);',
+  '    else            printf("%d %d %d", c, b, a);',
+  '  }',
+  '  return 0;',
+  '}'
+].join('\n');
+
+mostraCodigo('#e2Codigo',CODIGO_ORD);
+
+var SVG_ARVORE=[
+'<svg class="arvore" viewBox="0 0 680 336" role="img" aria-label="Árvore de comparações para ordenar três números">',
+'<g id="ed0L" class="ed-g"><line class="ed" x1="314" y1="70" x2="164" y2="110"/></g>',
+'<g id="ed0R" class="ed-g"><line class="ed" x1="314" y1="70" x2="464" y2="110"/></g>',
+'<g id="ed1La" class="ed-g"><line class="ed" x1="164" y1="150" x2="89" y2="270"/></g>',
+'<g id="ed1Lb" class="ed-g"><line class="ed" x1="164" y1="150" x2="239" y2="190"/></g>',
+'<g id="ed2La" class="ed-g"><line class="ed" x1="239" y1="230" x2="189" y2="270"/></g>',
+'<g id="ed2Lb" class="ed-g"><line class="ed" x1="239" y1="230" x2="289" y2="270"/></g>',
+'<g id="ed1Ra" class="ed-g"><line class="ed" x1="464" y1="150" x2="389" y2="270"/></g>',
+'<g id="ed1Rb" class="ed-g"><line class="ed" x1="464" y1="150" x2="539" y2="190"/></g>',
+'<g id="ed2Ra" class="ed-g"><line class="ed" x1="539" y1="230" x2="489" y2="270"/></g>',
+'<g id="ed2Rb" class="ed-g"><line class="ed" x1="539" y1="230" x2="589" y2="270"/></g>',
+no_(  'n0','269','30','90','40','a &lt; b ?'),
+no_( 'n1L','119','110','90','40','b &lt; c ?'),
+no_( 'n1R','419','110','90','40','a &lt; c ?'),
+no_( 'n2L','194','190','90','40','a &lt; c ?'),
+no_( 'n2R','494','190','90','40','b &lt; c ?'),
+folha('f0','45','270','88','36','a b c'),
+folha('f1','145','270','88','36','a c b'),
+folha('f2','245','270','88','36','c a b'),
+folha('f3','345','270','88','36','b a c'),
+folha('f4','445','270','88','36','b c a'),
+folha('f5','545','270','88','36','c b a'),
+tag('tg0L','225','84','sim'), tag('tg0R','402','84','não'),
+tag('tg1La','101','208','sim'), tag('tg1Lb','216','166','não'),
+tag('tg2La','195','248','sim'), tag('tg2Lb','285','248','não'),
+tag('tg1Ra','401','208','sim'), tag('tg1Rb','516','166','não'),
+tag('tg2Ra','495','248','sim'), tag('tg2Rb','585','248','não'),
+'</svg>'].join('\n');
+
+function no_(id,x,y,w,h,txt){
+  return '<g id="'+id+'" class="no"><rect class="cx" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+
+    '" rx="7"/><text class="lbl" x="'+(+x+ +w/2)+'" y="'+(+y+ +h/2)+
+    '" text-anchor="middle" dominant-baseline="central">'+txt+'</text></g>';
+}
+function folha(id,x,y,w,h,txt){
+  return '<g id="'+id+'" class="folha"><rect class="cx" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+
+    '" rx="7"/><text class="lbl" x="'+(+x+ +w/2)+'" y="'+(+y+ +h/2)+
+    '" text-anchor="middle" dominant-baseline="central">'+txt+'</text></g>';
+}
+function tag(id,x,y,txt){
+  return '<text id="'+id+'" class="tag" x="'+x+'" y="'+y+'" text-anchor="middle">'+txt+'</text>';
+}
+
+$('#e2SvgHost').innerHTML=SVG_ARVORE;
+
+function apaga(){
+  document.querySelectorAll('.arvore .on').forEach(function(e){e.classList.remove('on');});
+}
+function acende(ids){
+  ids.forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el) return;
+    if(el.tagName==='text') el.classList.add('on');
+    else if(el.classList.contains('ed-g')) el.querySelector('.ed').classList.add('on');
+    else el.classList.add('on');
+  });
+}
+
+function caminho(a,b,c){
+  var acesos=[], passos=[], folhaId, ordem;
+  function reg(txt,val){ passos.push({txt:txt,val:val}); }
+  if(a<b){
+    acesos.push('n0','ed0L','tg0L','n1L'); reg('a &lt; b',true);
+    if(b<c){ reg('b &lt; c',true); acesos.push('ed1La','tg1La'); folhaId='f0'; ordem=[a,b,c]; }
+    else{
+      reg('b &lt; c',false); acesos.push('ed1Lb','tg1Lb','n2L');
+      if(a<c){ reg('a &lt; c',true); acesos.push('ed2La','tg2La'); folhaId='f1'; ordem=[a,c,b]; }
+      else   { reg('a &lt; c',false); acesos.push('ed2Lb','tg2Lb'); folhaId='f2'; ordem=[c,a,b]; }
+    }
+  } else {
+    acesos.push('n0','ed0R','tg0R','n1R'); reg('a &lt; b',false);
+    if(a<c){ reg('a &lt; c',true); acesos.push('ed1Ra','tg1Ra'); folhaId='f3'; ordem=[b,a,c]; }
+    else{
+      reg('a &lt; c',false); acesos.push('ed1Rb','tg1Rb','n2R');
+      if(b<c){ reg('b &lt; c',true); acesos.push('ed2Ra','tg2Ra'); folhaId='f4'; ordem=[b,c,a]; }
+      else   { reg('b &lt; c',false); acesos.push('ed2Rb','tg2Rb'); folhaId='f5'; ordem=[c,b,a]; }
+    }
+  }
+  acesos.push(folhaId);
+  return {acesos:acesos,passos:passos,ordem:ordem};
+}
+
+function percorre(){
+  var a=le('#e2a'), b=le('#e2b'), c=le('#e2c');
+  var cam=caminho(a,b,c);
+  apaga(); acende(cam.acesos);
+
+  var r=CEval.executa(CODIGO_ORD,[a,b,c]);
+  mostraSaida('#e2Saida',r);
+
+  var lista=cam.passos.map(function(p){
+    return '<code>'+p.txt+'</code> → <b style="color:var(--'+(p.val?'sim':'nao')+')">'+
+      (p.val?'verdadeiro':'falso')+'</b>';
+  }).join(' &nbsp;·&nbsp; ');
+
+  var n=cam.passos.length;
+  var ordenado=cam.ordem.slice().every(function(v,i,ar){ return i===0||ar[i-1]<=v; });
+  nota('#e2Nota', ordenado?'bom':'ruim',
+    n+' comparaç'+(n===1?'ão':'ões')+' até a folha',
+    lista+'<span class="dica">'+
+    (n===2?'Este é um dos dois caminhos curtos da árvore.'
+          :'Este caminho passa por três comparações — é o pior caso.')+
+    (r.ok?' Saída do programa: <code>'+r.saida+'</code>.':'')+'</span>');
+}
+
+$('#e2Rodar').onclick=percorre;
+$('#e2Sorteio').onclick=function(){
+  var vs=[0,0,0].map(function(){ return Math.floor(Math.random()*20)-3; });
+  $('#e2a').value=vs[0]; $('#e2b').value=vs[1]; $('#e2c').value=vs[2];
+  percorre();
+};
+percorre();
+
+/* ================= ETAPA 3 ================= */
+
+var A1=[
+  '#include <stdio.h>',
+  '',
+  'int main() {',
+  '  int a, b, c;',
+  '  scanf("%d %d %d", &a, &b, &c);',
+  '',
+  '  if (a <= b && a <= c) printf("menor = %d\\n", a);',
+  '  if (b <= a && b <= c) printf("menor = %d\\n", b);',
+  '  if (c <= a && c <= b) printf("menor = %d\\n", c);',
+  '  return 0;',
+  '}'
+].join('\n');
+
+var A2=[
+  '#include <stdio.h>',
+  '',
+  'int main() {',
+  '  int a, b, c;',
+  '  scanf("%d %d %d", &a, &b, &c);',
+  '',
+  '  if (a < b < c) printf("b esta entre a e c\\n");',
+  '  else           printf("b nao esta entre a e c\\n");',
+  '',
+  '  printf("porque (a < b) vale %d, e depois compara %d < c\\n", a < b, a < b);',
+  '  return 0;',
+  '}'
+].join('\n');
+
+var A3=[
+  '#include <stdio.h>',
+  '',
+  'int main() {',
+  '  int a = 1, b = 7;',
+  '',
+  '  if (a = b) printf("a e igual a b\\n");',
+  '  else       printf("a e diferente de b\\n");',
+  '',
+  '  printf("depois do if, a vale %d\\n", a);',
+  '  return 0;',
+  '}'
+].join('\n');
+
+var A4=[
+  '#include <stdio.h>',
+  '',
+  'int main() {',
+  '  int a = 1, b = 9;',
+  '',
+  '  if (a > b);',
+  '    printf("a e maior que b\\n");',
+  '',
+  '  return 0;',
+  '}'
+].join('\n');
+
+mostraCodigo('#a1Codigo',A1);
+mostraCodigo('#a2Codigo',A2);
+mostraCodigo('#a3Codigo',A3);
+mostraCodigo('#a4Codigo',A4);
+
+$('#a1Rodar').onclick=function(){
+  var a=le('#a1a'), b=le('#a1b'), c=le('#a1c');
+  var r=CEval.executa(A1,[a,b,c]);
+  mostraSaida('#a1Saida',r);
+  if(!r.ok) return;
+  var linhas=r.saida.trim().split('\n').filter(function(l){return l!=='';});
+  if(linhas.length>1){
+    nota('#a1Nota','bom','Achou',
+      'Com valores repetidos, mais de uma condição é verdadeira — e como não há <code>else</code>, '+
+      'todas executam. O programa não escolheu: ele respondeu três vezes à mesma pergunta.'+
+      '<span class="dica">Com <code>if</code>/<code>else if</code>/<code>else</code>, assim que uma condição '+
+      'é verdadeira as outras nem chegam a ser testadas.</span>');
+  } else {
+    nota('#a1Nota','pensa','Só uma linha impressa — tente de novo',
+      'Com três valores distintos exatamente uma condição é verdadeira, e o bug fica escondido. '+
+      'Pense em uma entrada onde dois números sejam o menor ao mesmo tempo.');
+  }
+};
+
+$('#a2Rodar').onclick=function(){
+  var a=le('#a2a'), b=le('#a2b'), c=le('#a2c');
+  var r=CEval.executa(A2,[a,b,c]);
+  mostraSaida('#a2Saida',r);
+  if(!r.ok) return;
+  var t1=(a<b)?1:0;
+  nota('#a2Nota','ruim','O que o C entendeu',
+    '<code>a &lt; b &lt; c</code> é lido da esquerda para a direita, como <code>(a &lt; b) &lt; c</code>. '+
+    'Aqui <code>a &lt; b</code> vale <b>'+t1+'</b>, e o C então compara <code>'+t1+' &lt; '+c+'</code>.'+
+    '<span class="dica">Ou seja: a condição praticamente ignora <code>b</code> e é verdadeira sempre que '+
+    '<code>c</code> for maior que 0 ou 1. O que se queria escrever é '+
+    '<code>a &lt; b &amp;&amp; b &lt; c</code>.</span>');
+};
+
+$('#a3Rodar').onclick=function(){
+  var r=CEval.executa(A3,[]);
+  mostraSaida('#a3Saida',r);
+  nota('#a3Nota','ruim','<code>=</code> atribui, <code>==</code> compara',
+    '<code>a = b</code> copia 7 para <code>a</code> e o resultado da própria atribuição é 7. '+
+    'Como 7 é diferente de zero, o C considera a condição verdadeira.'+
+    '<span class="dica">Duas coisas deram errado de uma vez: a comparação não aconteceu e o valor de '+
+    '<code>a</code> foi destruído. Este é o único destes quatro erros que muitos compiladores avisam — '+
+    'compile com <code>-Wall</code> e o aviso aparece.</span>');
+};
+
+$('#a4Rodar').onclick=function(){
+  var r=CEval.executa(A4,[]);
+  mostraSaida('#a4Saida',r);
+  nota('#a4Nota','ruim','O <code>if</code> ficou com o corpo vazio',
+    'O <code>;</code> logo depois de <code>if (a &gt; b)</code> já é um comando completo — um comando '+
+    'que não faz nada. O <code>printf</code> indentado embaixo não pertence ao <code>if</code> e roda sempre.'+
+    '<span class="dica">A indentação enganou você, não o compilador. Em C, o que agrupa comandos são as '+
+    'chaves, nunca os espaços.</span>');
+};
+
+/* ================= ETAPA 4 ================= */
+
+var MODELO=[
+  {t:'#include <stdio.h>'},
+  {t:''},
+  {t:'int main() {'},
+  {t:'  int a, b, c;'},
+  {t:'  scanf("%d %d %d", &a, &b, &c);'},
+  {t:''},
+  {pre:'  if (', id:'c1', pos:') {', dica:'a <= b'},
+  {pre:'    if (', id:'c2', pos:')  printf("%d %d %d", ', id2:'p1', pos2:');', dica:'b <= c', dica2:'a, b, c'},
+  {pre:'    else if (', id:'c3', pos:') printf("%d %d %d", ', id2:'p2', pos2:');', dica:'a <= c', dica2:'a, c, b'},
+  {pre:'    else', id:null, pos:'         printf("%d %d %d", ', id2:'p3', pos2:');', dica2:'c, a, b'},
+  {t:'  } else {'},
+  {pre:'    if (', id:'c4', pos:')  printf("%d %d %d", ', id2:'p4', pos2:');', dica:'a <= c', dica2:'b, a, c'},
+  {pre:'    else if (', id:'c5', pos:') printf("%d %d %d", ', id2:'p5', pos2:');', dica:'b <= c', dica2:'b, c, a'},
+  {pre:'    else', id:null, pos:'         printf("%d %d %d", ', id2:'p6', pos2:');', dica2:'c, b, a'},
+  {t:'  }'},
+  {t:'  return 0;'},
+  {t:'}'}
+];
+
+function montaModelo(){
+  var host=$('#e4Modelo'); host.innerHTML='';
+  MODELO.forEach(function(l){
+    var d=document.createElement('div');
+    d.className='linha-mod';
+    if(l.t!==undefined){
+      d.innerHTML='<span style="white-space:pre">'+l.t.replace(/</g,'&lt;')+'</span>';
+      host.appendChild(d); return;
+    }
+    function txt(s){ var e=document.createElement('span'); e.style.whiteSpace='pre'; e.textContent=s; return e; }
+    function inp(id,ph){
+      var e=document.createElement('input');
+      e.type='text'; e.className='lacuna'; e.dataset.lac=id;
+      e.setAttribute('aria-label','lacuna '+id);
+      e.placeholder=ph||''; return e;
+    }
+    d.appendChild(txt(l.pre));
+    if(l.id) d.appendChild(inp(l.id,'condição'));
+    if(l.pos) d.appendChild(txt(l.pos));
+    if(l.id2) d.appendChild(inp(l.id2,'valores'));
+    if(l.pos2) d.appendChild(txt(l.pos2));
+    host.appendChild(d);
+  });
+}
+montaModelo();
+
+function codigoMontado(){
+  var linhas=[];
+  MODELO.forEach(function(l){
+    if(l.t!==undefined){ linhas.push(l.t); return; }
+    var s=l.pre;
+    if(l.id) s+= ($('[data-lac="'+l.id+'"]').value.trim()||'/*?*/');
+    if(l.pos) s+=l.pos;
+    if(l.id2) s+= ($('[data-lac="'+l.id2+'"]').value.trim()||'/*?*/');
+    if(l.pos2) s+=l.pos2;
+    linhas.push(s);
+  });
+  return linhas.join('\n');
+}
+
+var CASOS_TESTE=[
+  [1,2,3],[1,3,2],[2,1,3],[3,1,2],[2,3,1],[3,2,1],
+  [5,5,9],[7,2,2],[4,4,4]
+];
+
+function esperado(v){
+  var s=v.slice().sort(function(x,y){return x-y;});
+  return s.join(' ');
+}
+
+function livre(){ return !$('#e4Editor').hidden; }
+
+$('#e4Livre').onclick=function(){
+  var ed=$('#e4Editor');
+  if(ed.hidden){
+    $('#e4Texto').value=codigoMontado();
+    ed.hidden=false;
+    $('#e4Modelo').hidden=true;
+    this.textContent='Voltar ao modelo';
+  } else {
+    ed.hidden=true;
+    $('#e4Modelo').hidden=false;
+    this.textContent='Editar o código inteiro';
+  }
+};
+
+$('#e4Resposta').onclick=function(){
+  if(livre()){ $('#e4Texto').value=CODIGO_ORD.replace(/</g,'<'); return; }
+  MODELO.forEach(function(l){
+    if(l.id&&l.dica) $('[data-lac="'+l.id+'"]').value=l.dica;
+    if(l.id2&&l.dica2) $('[data-lac="'+l.id2+'"]').value=l.dica2;
+  });
+};
+
+$('#e4Testar').onclick=function(){
+  var src=livre()? $('#e4Texto').value : codigoMontado();
+  var vazias=0;
+  if(!livre()){
+    document.querySelectorAll('#e4Modelo .lacuna').forEach(function(i){
+      if(i.value.trim()===''){ vazias++; i.style.borderColor='var(--nao)'; }
+      else i.style.borderColor='var(--ambar)';
+    });
+  }
+  if(vazias>0){
+    nota('#e4Resultado','ruim','Faltam '+vazias+' lacuna(s)',
+      'Preencha todas as lacunas antes de testar. Se quiser ver um exemplo, use “Ver uma resposta”.');
+    return;
+  }
+
+  var linhas='', passou=0, primeiroErro=null;
+  CASOS_TESTE.forEach(function(v){
+    var r=CEval.executa(src,v.slice());
+    var esp=esperado(v);
+    var obt=r.ok? r.saida.trim() : 'erro linha '+r.erro.linha;
+    var bom=r.ok&&obt===esp;
+    if(bom) passou++; else if(!primeiroErro) primeiroErro={v:v,r:r,esp:esp,obt:obt};
+    linhas+='<tr><td>'+v.join(' ')+'</td><td>'+esp+'</td><td class="'+(bom?'v':'x')+'">'+
+      (obt===''?'(nada)':obt.replace(/</g,'&lt;'))+'</td><td class="'+(bom?'v':'x')+'">'+
+      (bom?'ok':'✗')+'</td></tr>';
+  });
+
+  var tabela='<table class="testes"><thead><tr><th>entrada</th><th>esperado</th>'+
+    '<th>obtido</th><th></th></tr></thead><tbody>'+linhas+'</tbody></table>';
+
+  if(passou===CASOS_TESTE.length){
+    nota('#e4Resultado','bom','Passou nas 9 entradas',
+      tabela+'<span class="dica">Inclusive nos casos com valores repetidos. Se você usou '+
+      '<code>&lt;</code> em vez de <code>&lt;=</code> e mesmo assim passou, vale entender por quê: '+
+      'com empate, os dois ramos produzem a mesma saída.</span>');
+  } else {
+    var p=primeiroErro;
+    var explica='';
+    if(!p.r.ok){
+      explica='O programa não chegou a rodar: linha '+p.r.erro.linha+', '+p.r.erro.msg+
+        (p.r.erro.dica?' '+p.r.erro.dica:'');
+    } else if(p.obt===''){
+      explica='Com a entrada <code>'+p.v.join(' ')+'</code> nenhum ramo imprimiu nada — '+
+        'existe um caso que suas condições não cobrem.';
+    } else if(p.obt.split('\n').length>1){
+      explica='Com a entrada <code>'+p.v.join(' ')+'</code> mais de um ramo imprimiu. '+
+        'Isso acontece quando dois ramos podem ser verdadeiros ao mesmo tempo.';
+    } else {
+      explica='Com a entrada <code>'+p.v.join(' ')+'</code> saiu <code>'+p.obt+
+        '</code> e o esperado era <code>'+p.esp+'</code>. Percorra a árvore da etapa 2 com esses '+
+        'valores e veja em que folha você deveria ter caído.';
+    }
+    nota('#e4Resultado','ruim',passou+' de '+CASOS_TESTE.length+' entradas corretas',
+      tabela+'<span class="dica">'+explica+'</span>');
+  }
+};
+
+})();
+</script>
+</body>
+</html>
